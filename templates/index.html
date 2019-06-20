@@ -10,41 +10,14 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
 	<link rel="stylesheet" href="{{ url_for('static', filename='mine.css') }}" type="text/css"/>
+	<script type="text/javascript" src="{{ url_for('static', filename='mine.js') }}"></script>
 
-	<script type="text/javascript">
-	    $(document).ready(function() {
-			$('#multiselect').multiselect({
-				buttonWidth : '100%',
-				includeSelectAllOption : true,
-				nonSelectedText: 'Select research keys'
-			});
-
-			$( "#search" ).click(function() {
-				alert( "Handler for .click() called." );
-			});
-
-			$( "#search-options" ).click(function() {
-				alert( "Handler for .click() called." );
-			});
-
-			$( "#search-options-images" ).click(function() {
-				alert( "Handler for .click() called." );
-			});
-
-			$( "#search-options-text" ).click(function() {
-				alert( "Handler for .click() called." );
-			});
-		});
-
-
-		
-	</script>
 </head>
 <body>
 
 <div class="row">
   <div class="col-sm-10">
-    <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search all">
+    <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search all" id="general-search">
   </div>
   <div class="col-sm-2">
     <button type="button" style="width: 100%;" class="btn btn-primary" id="search">Search</button>
@@ -53,10 +26,9 @@
 <div class="row">
 	 <div class="col-sm-10">
 	    	<select id="multiselect" multiple="multiple">
-			  <option value="http://ipv4.download.thinkbroadband.com/5MB.zip">OptionOptionOptionOptionOptionOptionOptionOptionOptionOptionOptionOptionOption 1</option>
-			  <option value="http://ipv4.download.thinkbroadband.com/10MB.zip">Option 2</option>
-			  <option value="http://ipv4.download.thinkbroadband.com/20MB.zip">Option 3</option>
-			  <option value="http://ipv4.download.thinkbroadband.com/50MB.zip">Option 4</option>
+	    		{% for key in reaserch_keys %}
+				  <option value="{{ key }}">{{ key }}</option>
+				{% endfor %}		
 			</select>
 	  </div>
 	  <div class="col-sm-2">
