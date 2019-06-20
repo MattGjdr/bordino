@@ -1,0 +1,18 @@
+{% extends 'bootstrap/base.html' %}
+
+{% block title %}
+    {% if title %}{{ title }} - Microblog{% else %}Welcome to Microblog{% endif %}
+{% endblock %}
+
+{% block content %}
+   <div class="row">
+    <div class="col-md-12">
+	<select class="selectpicker" multiple data-live-search="true">
+  <option>Mustard</option>
+  <option>Ketchup</option>
+  <option>Relish</option>
+</select>
+    </div>
+</div>
+{% endblock %}
+

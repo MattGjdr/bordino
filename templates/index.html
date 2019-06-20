@@ -1,0 +1,156 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/css/bootstrap-select.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.8.1/js/bootstrap-select.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
+	<link rel="stylesheet" href="{{ url_for('static', filename='mine.css') }}" type="text/css"/>
+
+	<script type="text/javascript">
+	    $(document).ready(function() {
+			$('#multiselect').multiselect({
+				buttonWidth : '100%',
+				includeSelectAllOption : true,
+				nonSelectedText: 'Select research keys'
+			});
+
+			$( "#search" ).click(function() {
+				alert( "Handler for .click() called." );
+			});
+
+			$( "#search-options" ).click(function() {
+				alert( "Handler for .click() called." );
+			});
+
+			$( "#search-options-images" ).click(function() {
+				alert( "Handler for .click() called." );
+			});
+
+			$( "#search-options-text" ).click(function() {
+				alert( "Handler for .click() called." );
+			});
+		});
+
+
+		
+	</script>
+</head>
+<body>
+
+<div class="row">
+  <div class="col-sm-10">
+    <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search all">
+  </div>
+  <div class="col-sm-2">
+    <button type="button" style="width: 100%;" class="btn btn-primary" id="search">Search</button>
+  </div>
+</div>
+<div class="row">
+	 <div class="col-sm-10">
+	    	<select id="multiselect" multiple="multiple">
+			  <option value="http://ipv4.download.thinkbroadband.com/5MB.zip">OptionOptionOptionOptionOptionOptionOptionOptionOptionOptionOptionOptionOption 1</option>
+			  <option value="http://ipv4.download.thinkbroadband.com/10MB.zip">Option 2</option>
+			  <option value="http://ipv4.download.thinkbroadband.com/20MB.zip">Option 3</option>
+			  <option value="http://ipv4.download.thinkbroadband.com/50MB.zip">Option 4</option>
+			</select>
+	  </div>
+	  <div class="col-sm-2">
+	  	<button class="btn btn-primary" style="width: 100%;" type="button" data-toggle="collapse" data-target="#multiCollapseOptions" aria-expanded="false" aria-controls="multiCollapseOptions">more options</button>
+	  </div>
+</div>
+
+<div class="row">
+	 <div class="collapse multi-collapse" id="multiCollapseOptions">
+	  <div class="panel-group" id="accordion">
+    	<div class="panel panel-default">
+        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseall">
+		      	<div class="panel-heading" style="background-color: #AAAAAA">
+		      	<center>
+		        	<h4 class="panel-title">
+		          	Search in all
+		        	</h4>
+		    	</center>
+		      	</div>
+  	    	</a>
+	      <div id="collapseall" class="panel-collapse collapse in">
+	        <div class="panel-body">
+	        	<ul class="list-group">
+	        	{% for element in all_elements %}
+				  <li class="list-group-item">
+				  	{{ element.name }}: <input id="{{ element.name }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search">
+				  </li>
+				{% endfor %}
+				  <li class="list-group-item">
+				  	<button type="button" style="width: 100%;" class="btn btn-primary" id="search-options">Search all</button>
+				  </li>
+				</ul>
+	    	</div>
+	      </div>
+	    </div>
+
+
+	    <div class="panel panel-default">
+        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseimage">
+		      	<div class="panel-heading" style="background-color: #AAAAAA">
+		      	<center>
+			        <h4 class="panel-title">
+			          Search in image
+			        </h4>
+		        </center>
+		      	</div>
+  	    	</a>
+	      <div id="collapseimage" class="panel-collapse collapse">
+	        <div class="panel-body">
+	        	<ul class="list-group">
+				  {% for element in image_elements %}
+				  <li class="list-group-item">
+				  	{{ element.name }}: <input id="{{ element.name }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search">
+				  </li>
+				  {% endfor %}
+				  <li class="list-group-item">
+				  	<button type="button" style="width: 100%;" class="btn btn-primary" id="search-options-images">Search images</button>
+				  </li>
+				</ul>
+	    	</div>
+	      </div>
+	    </div>
+
+
+	    <div class="panel panel-default">
+        	<a data-toggle="collapse" data-parent="#accordion" href="#collapsetext">
+		      	<div class="panel-heading" style="background-color: #AAAAAA">
+		      	<center>
+			        <h4 class="panel-title">
+			          Search in text
+			        </h4>
+			    </center>
+		      	</div>
+  	    	</a>
+	      <div id="collapsetext" class="panel-collapse collapse">
+	        <div class="panel-body">
+	        	<ul class="list-group">
+				  {% for element in text_elements %}
+				  <li class="list-group-item">
+				  	{{ element.name }}: <input id="{{ element.name }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search">
+				  </li>
+				  {% endfor %}
+				  <li class="list-group-item">
+				  	<button type="button" style="width: 100%;" class="btn btn-primary" id="search-options-texts">Search texts</button>
+				  </li>
+				</ul>
+	    	</div>
+	      </div>
+	    </div>
+
+
+  		</div> 
+  	</div>
+</div>
+
+</body>
+</html>
