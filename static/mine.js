@@ -1,10 +1,12 @@
 $(document).ready(function() {
+	
+
 	$('#multiselect').multiselect({
 		buttonWidth : '100%',
 		includeSelectAllOption : true,
 		enableFiltering : true,
 		numberDisplayed: 8,
-		nonSelectedText: 'Select research keys'
+		nonSelectedText: 'You might choose some research keys'
 	});
 
 	$('#multiCollapseOptions').on('shown.bs.collapse', function () {

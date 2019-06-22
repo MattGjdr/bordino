@@ -13,12 +13,12 @@
 	<script type="text/javascript" src="{{ url_for('static', filename='mine.js') }}"></script>
 
 </head>
-<body>
+<body style="background-color: #ddd">
 
-<div class="row">
+<div class="row" style="margin-right: 15%; margin-left: 15%;">
 	<div class="col-sm-12">
 		<div class="input-group">
-		<input type="search" class="form-control" placeholder="search all" id="general-search">
+		<input type="search" class="form-control" placeholder="Write something and search it" id="general-search">
 		<span class="input-group-btn">
 		<button class="btn btn-primary" type="button" id="search">Search!</button>
 		<button class="btn btn-light" type="button" data-toggle="collapse" data-target="#multiCollapseOptions" aria-expanded="false" aria-controls="multiCollapseOptions">More options</button>
@@ -26,7 +26,7 @@
 		</div>
 	</div>
 </div>
-<div class="row">
+<div class="row" style="margin-right: 15%; margin-left: 15%;">
 	 <div class="col-sm-12">
 	    	<select id="multiselect" multiple="multiple">
 	    		{% for key in reaserch_keys %}
@@ -37,11 +37,11 @@
 
 </div>
 
-<div class="row">
+<div class="row" style="margin-right: 15%; margin-left: 15%;">
 	 <div class="collapse multi-collapse" id="multiCollapseOptions">
 	  <div class="panel-group" id="accordion">
     	<div class="panel panel-default">
-        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseall">
+        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseall" style="text-decoration: none">
 		      	<div class="panel-heading" style="background-color: #AAAAAA">
 		      	<center>
 		        	<h4 class="panel-title">
@@ -50,7 +50,7 @@
 		    	</center>
 		      	</div>
   	    	</a>
-	      <div id="collapseall" class="panel-collapse collapse in">
+	      <div id="collapseall" class="panel-collapse collapse in" style="background-color: #ddd">
 	        <div class="panel-body">
 	        	<ul class="list-group">
 	        	{% for element in all_elements %}
@@ -65,7 +65,7 @@
 
 
 	    <div class="panel panel-default">
-        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseimage">
+        	<a data-toggle="collapse" data-parent="#accordion" href="#collapseimage" style="text-decoration: none">
 		      	<div class="panel-heading" style="background-color: #AAAAAA">
 		      	<center>
 			        <h4 class="panel-title">
@@ -74,7 +74,7 @@
 		        </center>
 		      	</div>
   	    	</a>
-	      <div id="collapseimage" class="panel-collapse collapse">
+	      <div id="collapseimage" class="panel-collapse collapse" style="background-color: #ddd">
 	        <div class="panel-body">
 	        	<ul class="list-group">
 				  {% for element in image_elements %}
@@ -89,7 +89,7 @@
 
 
 	    <div class="panel panel-default">
-        	<a data-toggle="collapse" data-parent="#accordion" href="#collapsetext">
+        	<a data-toggle="collapse" data-parent="#accordion" href="#collapsetext" style="text-decoration: none">
 		      	<div class="panel-heading" style="background-color: #AAAAAA">
 		      	<center>
 			        <h4 class="panel-title">
@@ -98,7 +98,7 @@
 			    </center>
 		      	</div>
   	    	</a>
-	      <div id="collapsetext" class="panel-collapse collapse">
+	      <div id="collapsetext" class="panel-collapse collapse" style="background-color: #ddd">
 	        <div class="panel-body">
 	        	<ul class="list-group">
 				  {% for element in text_elements %}
@@ -114,6 +114,35 @@
 
   		</div> 
   	</div>
+</div>
+
+<div class="row" style="margin-right: 15%; margin-left: 15%;">
+	<div class="col-sm-12">
+		<ul class="list-group">
+		  {% for element in results %}
+		  <li class="list-group-item" style="border-top: 25px solid #ddd;">
+		  	<div class="row">
+		  		<div class="col-sm-4">
+					<img src="{{ element.image }}" style="width: 400px; height: 264px;">		  		 
+		  		</div>
+		  		<div class="col-sm-8">
+		  			<ul class="list-group">
+					  {% for key, value in element.data.items() %}
+					  <li class="list-group-item">
+					  	<span class="label label-default">{{key}}</span> {{value}}
+					  </li>
+					  {% endfor %}
+					  <li class="list-group-item">
+					  	<a href="/idalkjlkj" style="text-decoration: none"><span class="label label-info">More informations</span></a>
+					  	<a href="/idalkjlkj" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
+					  </li>
+					</ul>
+		  		</div>
+		  	</div>
+		  </li>
+		  {% endfor %}
+		</ul>
+	</div>
 </div>
 
 </body>
