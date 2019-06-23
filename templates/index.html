@@ -15,6 +15,18 @@
 </head>
 <body style="background-color: #ddd">
 
+<nav class="navbar navbar-inverse">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">Database</a>
+    </div>
+    <ul class="nav navbar-nav">
+      <li class="active"><a href="/">Home</a></li>
+      <li><a href="/login">Admin</a></li>
+    </ul>
+  </div>
+</nav>
+
 <div class="row" style="margin-right: 15%; margin-left: 15%;">
 	<div class="col-sm-12">
 		<div class="input-group">
@@ -133,8 +145,12 @@
 					  </li>
 					  {% endfor %}
 					  <li class="list-group-item">
-					  	<a href="/idalkjlkj" style="text-decoration: none"><span class="label label-info">More informations</span></a>
-					  	<a href="/idalkjlkj" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
+					  	{% if admin == True %}
+   						<a href="/edit/idalkjlkj" style="text-decoration: none"><span class="label label-success">Edit informations</span></a>
+						{% else %}
+					  	<a href="/show/idalkjlkj" style="text-decoration: none"><span class="label label-info">More informations</span></a>
+					  	<a href="/download/idalkjlkj" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
+					  	{% endif %}
 					  </li>
 					</ul>
 		  		</div>
