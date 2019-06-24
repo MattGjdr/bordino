@@ -1,10 +1,80 @@
-from flask import Flask, render_template
-from flask import request, session
+import os
 
+from flask import Flask, render_template
+from flask import request, session, jsonify
+
+from elasticsearch import Elasticsearch
+
+from flask import Flask, flash, request, redirect, url_for
+from werkzeug.utils import secure_filename
+
+from flask import send_from_directory, Response
+
+#code
+UPLOAD_FOLDER = '/home/matus/Documents/uploads'
+TXT_EXTENSIONS = set(['txt'])
+IMG_EXTENSIONS = set(['jpg'])
 
 app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+es = Elasticsearch()
+
+#need for session
 app.secret_key = 'any random string'
-#bootstrap = Bootstrap(app)
+
+
+def allowed_file_txt(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in TXT_EXTENSIONS
+
+def allowed_file_img(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in IMG_EXTENSIONS
+
+
+def upload_file(request):
+    if request.method == 'POST':
+        # array of files, 2 to be precise
+        if 'file[]' not in request.files and 'file' not in request.files:
+            return "No file part"
+
+        if 'file' in request.files:
+            file = request.files['file']
+            if file.filename == '':
+                return "No selected part"
+            if file and allowed_file_txt(file.filename):
+                filename = secure_filename(file.filename)
+                upload_to_elastic(file.read().decode("utf-8"))
+            return "Uploaded text"
+        else:
+            list_of_files = request.files.getlist("file[]")
+            #list of files to loop through
+            for file in list_of_files:
+                if file.filename == '':
+                    return "No selected part"
+                #if file is image, save it 
+                if file and allowed_file_img(file.filename):
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                #otherwise parse it and upload to elastic
+                if file and allowed_file_txt(file.filename):
+                    filename = secure_filename(file.filename)
+                    upload_to_elastic(file.read().decode("utf-8"))
+                return "Uploaded image"
+        #todo, maybe return somathing more meaningful
+        return "Somethings wrong"
+
+
+def upload_to_elastic(file_data):
+    body = {
+        'chapter': "1",
+        'location': "here",
+        'content': file_data,
+        'date': 1420070400001
+    }
+
+    result = es.index(index='my_index', id="slug", body=body)
+
 
 @app.route('/', methods=["GET"])
 def home():
@@ -19,7 +89,8 @@ def home():
                 'title': 'blaabla',
                 'this': 'rararar',
                 'author': 'krakra'
-            }
+            },
+            'id': 'slug'
         },
         {
             'image': '/static/photo.jpeg',
@@ -27,7 +98,8 @@ def home():
                 'title': 'blaabla',
                 'this': 'rararar',
                 'author': 'krakra'
-            }
+            },
+            'id': 'slug'
         }
     ]
 
@@ -64,11 +136,13 @@ def login():
     if 'logout' in request.args:
         session.pop('username', None)
 
+    #todo verification
     if 'username' in session:
         username = session['username']
         print(username)
         if username == "a":
-            return render_template('login.html', logged=True)
+            message = upload_file(request)
+            return render_template('login.html', logged=True, message=message)
 
 
     logged = False
@@ -77,6 +151,42 @@ def login():
         #,request.form['psw']):
             logged = True
             session['username'] = request.form['uname']
-            
 
     return render_template('login.html', logged=logged)
+
+
+@app.route('/edit/<id>', methods=["GET"])
+def edit(id):
+    #todo verification
+    if 'username' in session:
+        results = es.get(index='my_index', id='slug')
+        print(results['_source'])
+                
+        return render_template('edit.html', id=id, elements=results['_source'], disabled="")
+
+
+@app.route('/show/<id>', methods=["GET"])
+def show(id):
+    #todo verification
+    results = es.get(index='my_index', id='slug')
+    return render_template('edit.html', id=id, elements=results['_source'], disabled="disabled")
+
+
+@app.route('/download/<type>/<id>', methods=["GET"])
+def download(id, type):
+    #todo verification
+    if (type == "txt"):
+        results = es.get(index='my_index', id='slug')
+        generator = "assssssssssssssslkasjdalkdjs"
+        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename=test.txt"})
+    elif (type == "img"):
+        esults = es.get(index='my_index', id='slug')
+        generator = "assssssssssssssslkasjdalkdjs"
+        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename=test.jpg"})
+
+@app.route('/delete/<id>', methods=["GET"])
+def delete(id):
+    #todo verification
+    results = es.delete(index='my_index', id='slug')
+    return redirect('/')
+

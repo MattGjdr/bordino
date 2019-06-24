@@ -49,7 +49,7 @@
 
 </div>
 
-<div class="row" style="margin-right: 15%; margin-left: 15%;">
+<div class="row" style="margin-right: 20%; margin-left: 20%;">
 	 <div class="collapse multi-collapse" id="multiCollapseOptions">
 	  <div class="panel-group" id="accordion">
     	<div class="panel panel-default">
@@ -146,10 +146,11 @@
 					  {% endfor %}
 					  <li class="list-group-item">
 					  	{% if admin == True %}
-   						<a href="/edit/idalkjlkj" style="text-decoration: none"><span class="label label-success">Edit informations</span></a>
+   						<a href="/edit/{{element.id}}" style="text-decoration: none"><span class="label label-success">Edit informations</span></a>
 						{% else %}
-					  	<a href="/show/idalkjlkj" style="text-decoration: none"><span class="label label-info">More informations</span></a>
-					  	<a href="/download/idalkjlkj" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
+					  	<a href="/show/{{element.id}}" style="text-decoration: none"><span class="label label-info">More informations</span></a>
+					  	<a href="/download/txt/{{element.id}}" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
+					  	<a href="/download/img/{{element.id}}" style="text-decoration: none"><span class="label label-info">Download image</span></a>
 					  	{% endif %}
 					  </li>
 					</ul>
