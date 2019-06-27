@@ -41,7 +41,7 @@
 <div class="row" style="margin-right: 15%; margin-left: 15%;">
 	 <div class="col-sm-12">
 	    	<select id="multiselect" multiple="multiple">
-	    		{% for key in reaserch_keys %}
+	    		{% for key in reasearch_keys %}
 				  <option value="{{ key }}">{{ key }}</option>
 				{% endfor %}		
 			</select>
@@ -135,22 +135,25 @@
 		  <li class="list-group-item" style="border-top: 25px solid #ddd;">
 		  	<div class="row">
 		  		<div class="col-sm-4">
-					<img src="{{ element.image }}" style="width: 400px; height: 264px;">		  		 
+					<img src="{{ element._source.path }}" style="width: 400px; height: 264px;">		  		 
 		  		</div>
 		  		<div class="col-sm-8">
 		  			<ul class="list-group">
-					  {% for key, value in element.data.items() %}
+					  {% for key, value in element.highlight.items() %}
 					  <li class="list-group-item">
-					  	<span class="label label-default">{{key}}</span> {{value}}
+					  	<span class="label label-default">{{key}}</span> 
+					  	  {% for el in value %}
+						  	{{ el|safe }} ...
+						  {% endfor %}
 					  </li>
 					  {% endfor %}
 					  <li class="list-group-item">
 					  	{% if admin == True %}
-   						<a href="/edit/{{element.id}}" style="text-decoration: none"><span class="label label-success">Edit informations</span></a>
+   						<a href="/edit/{{element._id}}" style="text-decoration: none"><span class="label label-success">Edit informations</span></a>
 						{% else %}
-					  	<a href="/show/{{element.id}}" style="text-decoration: none"><span class="label label-info">More informations</span></a>
-					  	<a href="/download/txt/{{element.id}}" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
-					  	<a href="/download/img/{{element.id}}" style="text-decoration: none"><span class="label label-info">Download image</span></a>
+					  	<a href="/show/{{element._id}}" style="text-decoration: none"><span class="label label-info">More informations</span></a>
+					  	<a href="/download/txt/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
+					  	<a href="/download/img/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download image</span></a>
 					  	{% endif %}
 					  </li>
 					</ul>

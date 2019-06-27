@@ -1,14 +1,15 @@
 import os
+import json 
 
 from flask import Flask, render_template
-from flask import request, session, jsonify
+from flask import request, session, jsonify,send_from_directory, Response
 
 from elasticsearch import Elasticsearch
 
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
-from flask import send_from_directory, Response
+from es import add_elastic, delete_elastic, get_elastic, search_elastic
 
 #code
 UPLOAD_FOLDER = '/home/matus/Documents/uploads'
@@ -66,14 +67,7 @@ def upload_file(request):
 
 
 def upload_to_elastic(file_data):
-    body = {
-        'chapter': "1",
-        'location': "here",
-        'content': file_data,
-        'date': 1420070400001
-    }
-
-    result = es.index(index='my_index', id="slug", body=body)
+    add_elastic(file_data)
 
 
 @app.route('/', methods=["GET"])
@@ -121,13 +115,15 @@ def home():
         }
     ]
 
-    reaserch_keys = [
+    results = search_elastic("")
+
+    reasearch_keys = [
     'patronage','fabricating','restoring', 'worshiping', 'praying',
     'touching', 'kissing', 'burning light in front of images', 'offering precious gifts to images',
     'other veneration practices', 'describing', 'composing poems or inscriptions for material images', 'showing feelings',
     'blaming/showing scepticism/condemning', 'attacking/destryoing', 'miracles involving images'
     ]
-    return render_template('index.html', all_elements=all_elements, text_elements=elements, image_elements=elements, reaserch_keys=reaserch_keys, results=results, admin=admin)
+    return render_template('index.html', all_elements=all_elements, text_elements=elements, image_elements=elements, reasearch_keys=reasearch_keys, results=results, admin=admin)
 
 
 @app.route('/login', methods=["GET","POST"])
@@ -159,16 +155,14 @@ def login():
 def edit(id):
     #todo verification
     if 'username' in session:
-        results = es.get(index='my_index', id='slug')
-        print(results['_source'])
-                
+        results = get_elastic(id)
         return render_template('edit.html', id=id, elements=results['_source'], disabled="")
 
 
 @app.route('/show/<id>', methods=["GET"])
 def show(id):
     #todo verification
-    results = es.get(index='my_index', id='slug')
+    results = get_elastic(id)
     return render_template('edit.html', id=id, elements=results['_source'], disabled="disabled")
 
 
@@ -176,17 +170,21 @@ def show(id):
 def download(id, type):
     #todo verification
     if (type == "txt"):
-        results = es.get(index='my_index', id='slug')
-        generator = "assssssssssssssslkasjdalkdjs"
+        results = get_elastic(id)
+        #obsah suboru
+        generator = json.dumps(results)
         return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename=test.txt"})
     elif (type == "img"):
-        esults = es.get(index='my_index', id='slug')
-        generator = "assssssssssssssslkasjdalkdjs"
+        results = get_elastic(id)
+        #obsah suboru
+        generator = json.dumps(results)
         return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename=test.jpg"})
+
 
 @app.route('/delete/<id>', methods=["GET"])
 def delete(id):
     #todo verification
-    results = es.delete(index='my_index', id='slug')
+    if 'username' in session:
+        delete_elastic(id)
     return redirect('/')
 
