@@ -9,7 +9,7 @@ from elasticsearch import Elasticsearch
 from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
-from es import add_elastic, delete_elastic, get_elastic, search_elastic
+from es import add_elastic, delete_elastic, get_elastic, search_elastic, update_elastic
 
 #code
 UPLOAD_FOLDER = '/home/matus/Documents/uploads'
@@ -69,53 +69,107 @@ def upload_file(request):
 def upload_to_elastic(file_data):
     add_elastic(file_data)
 
+def parse_date_material_keys(res):
+
+    # res["_source"]["date"] = res["_source"]["date"]
+    # del res["_source"]["path"]
+
+    if (type(res["_source"]["material"])==list):
+        res["_source"]["material"] = ', '.join(res["_source"]["material"])
+    if (type(res["_source"]["keys"])==list):
+        res["_source"]["keys"] = ', '.join(res["_source"]["keys"])
+    if (type(res["_source"]["references.studies"])==list):
+        res["_source"]["studies"] = '\n\n'.join(res["_source"]["references.studies"])
+
+    res["_source"]["translation"] = res["_source"]["references.translation"]
+    res["_source"]["edition"] = res["_source"]["references.edition"]
+
+    del res["_source"]["references.edition"]
+    del res["_source"]["references.translation"]
+    del res["_source"]["references.studies"]
+    
+    return res
+
+def glue_date_material_keys(args):
+    
+    #res["_source"]["date"] = res["_source"]["date"]
+    #path
+    
+    args['material'] = args['material'].split(',')
+    args['references.studies'] = args['studies'].split('\n\n')
+    args['references.translation'] = args['translation']
+    args['references.edition'] = args['edition']
+    args['keys'] = args['keys'].split(',')
+    
+    return args
+
+
 
 @app.route('/', methods=["GET"])
 def home():
+    print(request.args)
+
     admin = False
     if 'username' in session:
         admin = True
 
-    results = [
-        {
-            'image': '/static/photo.jpeg',
-            'data': {
-                'title': 'blaabla',
-                'this': 'rararar',
-                'author': 'krakra'
-            },
-            'id': 'slug'
-        },
-        {
-            'image': '/static/photo.jpeg',
-            'data': {
-                'title': 'blaabla',
-                'this': 'rararar',
-                'author': 'krakra'
-            },
-            'id': 'slug'
-        }
-    ]
-
-    elements = [
-        {
-            'name': 'name'
-        },
-        {
-            'name': 'fame'
-        }
-    ]
-
     all_elements = [
         {
-            'time': 'time'
+            'name': 'title',
+            'id': 'title'
         },
         {
-            'text': 'text'
+            'name': 'date',
+            'id': 'date'
+        },
+        {
+            'name': 'location',
+            'id': 'location'
+        },
+        {
+            'name': 'content',
+            'id': 'content'
+        },
+        {
+            'name': 'comment',
+            'id': 'comment'
+        },
+        {
+            'name': 'references',
+            'id': 'references'
         }
     ]
 
-    results = search_elastic("")
+    text_elements = all_elements
+    image_elements = all_elements
+
+    text_elements.append(
+        {
+            'name': 'author',
+            'id': 'author'
+        }
+    )
+    text_elements.append(
+        {
+            'name': 'chapter',
+            'id': 'chapter'
+        }
+    )
+    text_elements.append(
+        {
+            'name': 'latin',
+            'id': 'latin'
+        }
+    )
+
+    image_elements.append(
+        {
+            'name': 'material',
+            'id': 'material'
+        }
+    )
+
+    results = search_elastic(request.args)
 
     reasearch_keys = [
     'patronage','fabricating','restoring', 'worshiping', 'praying',
@@ -123,7 +177,7 @@ def home():
     'other veneration practices', 'describing', 'composing poems or inscriptions for material images', 'showing feelings',
     'blaming/showing scepticism/condemning', 'attacking/destryoing', 'miracles involving images'
     ]
-    return render_template('index.html', all_elements=all_elements, text_elements=elements, image_elements=elements, reasearch_keys=reasearch_keys, results=results, admin=admin)
+    return render_template('index.html', all_elements=all_elements, text_elements=text_elements, image_elements=image_elements, reasearch_keys=reasearch_keys, results=results, admin=admin)
 
 
 @app.route('/login', methods=["GET","POST"])
@@ -156,6 +210,9 @@ def edit(id):
     #todo verification
     if 'username' in session:
         results = get_elastic(id)
+        
+        results = parse_date_material_keys(results)
+
         return render_template('edit.html', id=id, elements=results['_source'], disabled="")
 
 
@@ -163,6 +220,9 @@ def edit(id):
 def show(id):
     #todo verification
     results = get_elastic(id)
+
+    results = parse_date_material_keys(results)
+
     return render_template('edit.html', id=id, elements=results['_source'], disabled="disabled")
 
 
@@ -187,4 +247,13 @@ def delete(id):
     if 'username' in session:
         delete_elastic(id)
     return redirect('/')
+
+
+@app.route('/update/<id>', methods=["GET"])
+def upload(id):
+    #todo verification
+    if 'username' in session:
+        args = glue_date_material_keys(request.args.to_dict())
+        update_elastic(id, args)
+    return redirect('/edit/'+id)
 

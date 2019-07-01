@@ -31,13 +31,16 @@
 			<ul class="list-group">
 			  {% for key, value in elements.items() %}
 			  <li class="list-group-item">
-			  	{{ key }}: <input id="{{ key }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" value="{{ value }}" {{ disabled }} >
+			  	{{ key }}: 
+			  	<textarea id="{{ key }}" class="form-control" rows="2" {{ disabled }} >{{ value }}</textarea>
 			  </li>
 			  {% endfor %}
-
+			  <li class="list-group-item" style="display: none;"> 
+			  	<textarea id="id" class="form-control" rows="2" style="display: none;">{{ id }}</textarea>
+			  </li>
 			  {% if disabled != "disabled" %}
 			  <li class="list-group-item">
-			  	<a href="/update/{{id}}" style="text-decoration: none"><span class="label label-success">Update</span></a>
+			  	<span class="label label-success" id="update" style="cursor:pointer">Update</span>
 			  </li>
 			  <li class="list-group-item">
 			  	<a href="/delete/{{id}}" onclick="return confirm('Are you sure?')" style="text-decoration: none"><span class="label label-danger">Delete</span></a>
