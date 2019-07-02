@@ -7,20 +7,20 @@ es = Elasticsearch()
 
 def add_elastic(file_data):
 	e1 = {
-		"author": "Picasso",
-	    "title": "Trojuholniky",
+		"author": "Monet",
+	    "title": "Stvorce",
 	    "chapter": "1",
 	    "date": "2015-01-01",
 	    "location": "France",
 	    "latin": "Spiritus sanctis",
-	    "content": "Prelozene vecicky",
+	    "content": "Ine vecicky",
 	    "comment": "To znamena ze toto hento",
 	    "material": "wall painting",
 	    "references.edition": "Bib1",
 	    "references.translation": "Bib2",
 	    "references.studies": "Bib3",
-	    "keys": ["patronage","fabricating"],
-	    "path": "/static/photo.jpeg"
+	    "keys": ["patronage","kissing"],
+	    "path": "/static/moto.jpeg"
 	}
 
 	string_id = e1["title"]+e1["date"]+e1["content"]
@@ -55,7 +55,7 @@ def get_elastic(id):
 	return results
 
 
-def search_elastic(query):
+def search_elastic(query,search_type,start,size):
 	# "query": {
 	#     "multi_match" : {
 	#       "query":    "Picasso",
@@ -69,11 +69,22 @@ def search_elastic(query):
 
 	#@TODO DATE FORMAT
 
-	if query.get("type") is None:
+	if search_type == "all":
 		print("Error type not specified")
-		return []
+		query = {
+			"from": start, "size": size,
+		    "query": {
+		        "match_all": {}
+		    }
+		}
+		try:
+			results = es.search(index='my_index',body=query)
+		except:
+			print('error searching')
+		return results
+
 	else:
-		if query.get("type") == "basic":
+		if search_type == "basic":
 			for e in element_list:
 				query_list.append({ "match": { e: query.get("q") }})
 		else:
@@ -92,18 +103,18 @@ def search_elastic(query):
 
 	filter_field = "random_field_value"
 	must_field = "must_not"
-	if query.get("type") == "text":
+	if search_type == "text":
 		must_field = "must_not"
 		filter_field = "path"
 
-	if query.get("type") == "image":
+	if search_type == "image":
 		must_field = "must"
 		filter_field = "path"
 
 
 
 	query = {
-
+		"from": start, "size": size,
 		"query": { 
 		    "bool": { 
 				"should": query_list,
@@ -148,7 +159,7 @@ def search_elastic(query):
 		return []
 
 	print(results['hits']['hits'])
-	return results['hits']['hits']
+	return results
 
 def update_elastic(id, args):
 	print(args)

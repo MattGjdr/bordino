@@ -10,174 +10,127 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 from es import add_elastic, delete_elastic, get_elastic, search_elastic, update_elastic
-
-#code
-UPLOAD_FOLDER = '/home/matus/Documents/uploads'
-TXT_EXTENSIONS = set(['txt'])
-IMG_EXTENSIONS = set(['jpg'])
+from file import upload_file, UPLOAD_FOLDER
+from utils import elastic_to_html, html_to_elastic, elastic_to_html_all_filter
 
 app = Flask(__name__)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 es = Elasticsearch()
 
 #need for session
 app.secret_key = 'any random string'
 
+###CONFIG VARS####
 
-def allowed_file_txt(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in TXT_EXTENSIONS
+all_elements = [
+    {
+        'name': 'title',
+        'id': 'title'
+    },
+    {
+        'name': 'date',
+        'id': 'date'
+    },
+    {
+        'name': 'location',
+        'id': 'location'
+    },
+    {
+        'name': 'content',
+        'id': 'content'
+    },
+    {
+        'name': 'comment',
+        'id': 'comment'
+    },
+    {
+        'name': 'references',
+        'id': 'references'
+    }
+]
 
-def allowed_file_img(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in IMG_EXTENSIONS
+text_elements = all_elements
+image_elements = all_elements
 
+text_elements.append(
+    {
+        'name': 'author',
+        'id': 'author'
+    }
+)
+text_elements.append(
+    {
+        'name': 'chapter',
+        'id': 'chapter'
+    }
+)
+text_elements.append(
+    {
+        'name': 'latin',
+        'id': 'latin'
+    }
+)
 
-def upload_file(request):
-    if request.method == 'POST':
-        # array of files, 2 to be precise
-        if 'file[]' not in request.files and 'file' not in request.files:
-            return "No file part"
+image_elements.append(
+    {
+        'name': 'material',
+        'id': 'material'
+    }
+)
 
-        if 'file' in request.files:
-            file = request.files['file']
-            if file.filename == '':
-                return "No selected part"
-            if file and allowed_file_txt(file.filename):
-                filename = secure_filename(file.filename)
-                upload_to_elastic(file.read().decode("utf-8"))
-            return "Uploaded text"
-        else:
-            list_of_files = request.files.getlist("file[]")
-            #list of files to loop through
-            for file in list_of_files:
-                if file.filename == '':
-                    return "No selected part"
-                #if file is image, save it 
-                if file and allowed_file_img(file.filename):
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                #otherwise parse it and upload to elastic
-                if file and allowed_file_txt(file.filename):
-                    filename = secure_filename(file.filename)
-                    upload_to_elastic(file.read().decode("utf-8"))
-                return "Uploaded image"
-        #todo, maybe return somathing more meaningful
-        return "Somethings wrong"
+reasearch_keys = [
+    'patronage','fabricating','restoring', 'worshiping', 'praying',
+    'touching', 'kissing', 'burning light in front of images', 'offering precious gifts to images',
+    'other veneration practices', 'describing', 'composing poems or inscriptions for material images', 'showing feelings',
+    'blaming/showing scepticism/condemning', 'attacking/destryoing', 'miracles involving images'
+]
 
-
-def upload_to_elastic(file_data):
-    add_elastic(file_data)
-
-def parse_date_material_keys(res):
-
-    # res["_source"]["date"] = res["_source"]["date"]
-    # del res["_source"]["path"]
-
-    if (type(res["_source"]["material"])==list):
-        res["_source"]["material"] = ', '.join(res["_source"]["material"])
-    if (type(res["_source"]["keys"])==list):
-        res["_source"]["keys"] = ', '.join(res["_source"]["keys"])
-    if (type(res["_source"]["references.studies"])==list):
-        res["_source"]["studies"] = '\n\n'.join(res["_source"]["references.studies"])
-
-    res["_source"]["translation"] = res["_source"]["references.translation"]
-    res["_source"]["edition"] = res["_source"]["references.edition"]
-
-    del res["_source"]["references.edition"]
-    del res["_source"]["references.translation"]
-    del res["_source"]["references.studies"]
-    
-    return res
-
-def glue_date_material_keys(args):
-    
-    #res["_source"]["date"] = res["_source"]["date"]
-    #path
-    
-    args['material'] = args['material'].split(',')
-    args['references.studies'] = args['studies'].split('\n\n')
-    args['references.translation'] = args['translation']
-    args['references.edition'] = args['edition']
-    args['keys'] = args['keys'].split(',')
-    
-    return args
-
+#######################################################
 
 
 @app.route('/', methods=["GET"])
 def home():
     print(request.args)
 
+ 
+    size = request.args.get("size", 1, int)
+    start = request.args.get("start", 0, int)
+
+    next=start+1
+
+    if start>0:
+        previous = start - 1
+    else:
+        previous = 0
+
+    search_type = request.args.get("type", "all")
+
     admin = False
     if 'username' in session:
         admin = True
+    
+    results = search_elastic(request.args,search_type,start,size)
+    res = results['hits']['hits']
+    num_of_results = results['hits']['total']['value']
+    if search_type == "all":
+        res = elastic_to_html_all_filter(res)       
 
-    all_elements = [
-        {
-            'name': 'title',
-            'id': 'title'
-        },
-        {
-            'name': 'date',
-            'id': 'date'
-        },
-        {
-            'name': 'location',
-            'id': 'location'
-        },
-        {
-            'name': 'content',
-            'id': 'content'
-        },
-        {
-            'name': 'comment',
-            'id': 'comment'
-        },
-        {
-            'name': 'references',
-            'id': 'references'
-        }
-    ]
+    # res = results['hits']['hits']
+    # num_of_results = 0
+    print(res)
 
-    text_elements = all_elements
-    image_elements = all_elements
-
-    text_elements.append(
-        {
-            'name': 'author',
-            'id': 'author'
-        }
+    return render_template('index.html', 
+        all_elements=all_elements, 
+        text_elements=text_elements, 
+        image_elements=image_elements, 
+        reasearch_keys=reasearch_keys, 
+        results=res, 
+        num=num_of_results,
+        admin=admin,
+        next=next,
+        previous=previous
     )
-    text_elements.append(
-        {
-            'name': 'chapter',
-            'id': 'chapter'
-        }
-    )
-    text_elements.append(
-        {
-            'name': 'latin',
-            'id': 'latin'
-        }
-    )
-
-    image_elements.append(
-        {
-            'name': 'material',
-            'id': 'material'
-        }
-    )
-
-    results = search_elastic(request.args)
-
-    reasearch_keys = [
-    'patronage','fabricating','restoring', 'worshiping', 'praying',
-    'touching', 'kissing', 'burning light in front of images', 'offering precious gifts to images',
-    'other veneration practices', 'describing', 'composing poems or inscriptions for material images', 'showing feelings',
-    'blaming/showing scepticism/condemning', 'attacking/destryoing', 'miracles involving images'
-    ]
-    return render_template('index.html', all_elements=all_elements, text_elements=text_elements, image_elements=image_elements, reasearch_keys=reasearch_keys, results=results, admin=admin)
 
 
 @app.route('/login', methods=["GET","POST"])
@@ -211,7 +164,7 @@ def edit(id):
     if 'username' in session:
         results = get_elastic(id)
         
-        results = parse_date_material_keys(results)
+        results = elastic_to_html(results)
 
         return render_template('edit.html', id=id, elements=results['_source'], disabled="")
 
@@ -221,7 +174,7 @@ def show(id):
     #todo verification
     results = get_elastic(id)
 
-    results = parse_date_material_keys(results)
+    results = elastic_to_html(results)
 
     return render_template('edit.html', id=id, elements=results['_source'], disabled="disabled")
 
@@ -253,7 +206,7 @@ def delete(id):
 def upload(id):
     #todo verification
     if 'username' in session:
-        args = glue_date_material_keys(request.args.to_dict())
+        args = html_to_elastic(request.args.to_dict())
         update_elastic(id, args)
     return redirect('/edit/'+id)
 

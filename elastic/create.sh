@@ -1,3 +1,4 @@
+curl -X DELETE "localhost:9200/my_index"
 curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
 {
   "settings": {
@@ -5,15 +6,15 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
       "analyzer": {
         "my_analyzer": {
           "tokenizer": "my_tokenizer",
-	  "filter": [
-	  	"lowercase"
-	  ]
+      	  "filter": [
+      	  	"lowercase"
+      	  ]
         }
       },
       "tokenizer": {
         "my_tokenizer": {
           "type": "ngram",
-          "min_gram": 3,
+          "min_gram": 2,
           "max_gram": 3
         }
       }
@@ -22,37 +23,53 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
   "mappings":{
        "properties":{
           "author": {
-             "type":"text"
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
 	        "title": {
-             "type":"text"
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
           "chapter": {
-             "type":"text"
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
           "date": {
              "type":"date"
           },
           "location": {
-             "type":"text"
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
           "latin": {
-             "type":"text"
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
           "content": {
-             "type":"text"
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
           "comment": {
-             "type":"text"
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
           "material": {
              "type":"keyword"
           },
           "references": {
              "properties": {
-              "edition": { "type": "text" },
-              "translation":  { "type": "text" },
-              "studies": {"type": "text"}
+              "edition": { 
+                  "type": "text",
+                  "analyzer": "my_analyzer" 
+              },
+              "translation":  { 
+                "type": "text",
+                "analyzer": "my_analyzer"
+              },
+              "studies": {
+                "type": "text",
+                "analyzer": "my_analyzer"
+              }
             }
           },
           "keys": {
