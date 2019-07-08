@@ -1,14 +1,18 @@
 import os	
 import hashlib
 import elasticsearch
+import datetime
+
 from elasticsearch import Elasticsearch
 
 es = Elasticsearch()
 
 def add_elastic(file_data):
+	now = datetime.datetime.now()
+
 	e1 = {
-		"author": "Monet",
-	    "title": "Stvorce",
+		"author": "Textovty monet",
+	    "title": "Stvorcee textu",
 	    "chapter": "1",
 	    "date": "2015-01-01",
 	    "location": "France",
@@ -20,7 +24,8 @@ def add_elastic(file_data):
 	    "references.translation": "Bib2",
 	    "references.studies": "Bib3",
 	    "keys": ["patronage","kissing"],
-	    "path": "/static/moto.jpeg"
+	    "path": "",
+	    "added": now.strftime("%Y-%m-%d")
 	}
 
 	string_id = e1["title"]+e1["date"]+e1["content"]
@@ -86,16 +91,16 @@ def search_elastic(query,search_type,start,size):
 	else:
 		if search_type == "basic":
 			for e in element_list:
-				query_list.append({ "match": { e: query.get("q") }})
+				query_list.append({ "fuzzy": { e: query.get("q","") }})
 		else:
 			for e in element_list:
 				if query.get(e):
-					query_list.append({ "match": { e: query.get(e) }})
+					query_list.append({ "fuzzy": { e: query.get(e,"") }})
 
 	print(query_list)
 
 	if query.get("keys"):
-		keys = query.get("keys").split(",")
+		keys = query.get("keys","").split(",")
 		for k in keys:
 			key_list.append({ "term": { "keys": k }})
 
@@ -158,7 +163,7 @@ def search_elastic(query,search_type,start,size):
 		print('error searching')
 		return []
 
-	print(results['hits']['hits'])
+	print(results)
 	return results
 
 def update_elastic(id, args):

@@ -1,3 +1,22 @@
+function updateQueryStringParameter(uri, key, value) {
+	var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+	var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+	if (uri.match(re)) {
+		return uri.replace(re, '$1' + key + "=" + value + '$2');
+	}
+	else {
+		return uri + separator + key + "=" + value;
+	}
+}
+
+function set_previous(val){
+	url = window.location.href
+	url = updateQueryStringParameter(url,"start",val)
+	console.log(url)
+	window.open(url,"_self")
+}
+
+
 $(document).ready(function() {
 	function post_to_url(path, params, method) {
 	    method = method || "post";
@@ -94,7 +113,7 @@ $(document).ready(function() {
 			if ($('#collapseall').hasClass('in')){
 				console.log("collapseall search");
 				post_to_url('/', {
-					type: "all",
+					type: "imgtxt",
 				    title: $('#title').val(),
 				    date: $('#date').val(),
 				    location: $('#location').val(),

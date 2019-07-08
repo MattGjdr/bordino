@@ -5,7 +5,7 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
     "analysis": {
       "analyzer": {
         "my_analyzer": {
-          "tokenizer": "my_tokenizer",
+          "tokenizer": "standard",
       	  "filter": [
       	  	"lowercase"
       	  ]
@@ -78,6 +78,9 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
           "path": {
              "type":"text",
              "index": false
+          },
+          "added": {
+             "type":"date"
           }
       }
    }

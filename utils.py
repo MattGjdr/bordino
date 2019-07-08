@@ -3,7 +3,9 @@
 def elastic_to_html(res):
 
     # res["_source"]["date"] = res["_source"]["date"]
-    # del res["_source"]["path"]
+    img_name = res["_source"]["path"]
+    del res["_source"]["path"]
+    del res["_source"]["added"]
 
     if (type(res["_source"]["material"])==list):
         res["_source"]["material"] = ', '.join(res["_source"]["material"])
@@ -21,7 +23,7 @@ def elastic_to_html(res):
     del res["_source"]["references.translation"]
     del res["_source"]["references.studies"]
     
-    return res
+    return res, img_name
 
 def html_to_elastic(args):
     
@@ -43,5 +45,14 @@ def elastic_to_html_all_filter(res):
             "keys" : [', '.join(el["_source"]["keys"])],
             "date" : [el['_source']['date']]
         }
+
+    return res
+
+def check_elastic_res(res):
+    for el in res:
+        
+        if el['_score'] == 0.0:
+            print(el['_score'])
+            return []
 
     return res

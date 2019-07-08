@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 
 from es import add_elastic, delete_elastic, get_elastic, search_elastic, update_elastic
 from file import upload_file, UPLOAD_FOLDER
-from utils import elastic_to_html, html_to_elastic, elastic_to_html_all_filter
+from utils import elastic_to_html, html_to_elastic, elastic_to_html_all_filter, check_elastic_res
 
 app = Flask(__name__)
 
@@ -25,49 +25,49 @@ app.secret_key = 'any random string'
 
 all_elements = [
     {
-        'name': 'title',
+        'name': 'Title of work',
         'id': 'title'
     },
     {
-        'name': 'date',
+        'name': 'Date',
         'id': 'date'
     },
     {
-        'name': 'location',
+        'name': 'Location',
         'id': 'location'
     },
     {
-        'name': 'content',
+        'name': 'Content of work',
         'id': 'content'
     },
     {
-        'name': 'comment',
+        'name': 'Comment about work',
         'id': 'comment'
     },
     {
-        'name': 'references',
+        'name': 'Bibliographic references',
         'id': 'references'
     }
 ]
 
-text_elements = all_elements
-image_elements = all_elements
+text_elements = all_elements.copy()
+image_elements = all_elements.copy()
 
 text_elements.append(
     {
-        'name': 'author',
+        'name': 'Author of work',
         'id': 'author'
     }
 )
 text_elements.append(
     {
-        'name': 'chapter',
+        'name': 'Chapter of work',
         'id': 'chapter'
     }
 )
 text_elements.append(
     {
-        'name': 'latin',
+        'name': 'Latin text',
         'id': 'latin'
     }
 )
@@ -114,12 +114,15 @@ def home():
     res = results['hits']['hits']
     num_of_results = results['hits']['total']['value']
     if search_type == "all":
-        res = elastic_to_html_all_filter(res)       
+        res = elastic_to_html_all_filter(res) 
+    else:
+        res = check_elastic_res(res)      
 
     # res = results['hits']['hits']
     # num_of_results = 0
+    print("-----------------------")
     print(res)
-
+    print("-----------------------")
     return render_template('index.html', 
         all_elements=all_elements, 
         text_elements=text_elements, 
@@ -150,7 +153,7 @@ def login():
 
     logged = False
     if request.method == "POST":
-        if request.form['uname'] == "a":
+        if request.form['uname'] == "a" and request.form['psw'] == "a":
         #,request.form['psw']):
             logged = True
             session['username'] = request.form['uname']
@@ -164,9 +167,9 @@ def edit(id):
     if 'username' in session:
         results = get_elastic(id)
         
-        results = elastic_to_html(results)
+        results, img = elastic_to_html(results)
 
-        return render_template('edit.html', id=id, elements=results['_source'], disabled="")
+        return render_template('edit.html', id=id, elements=results['_source'], disabled="", img=img)
 
 
 @app.route('/show/<id>', methods=["GET"])
@@ -174,9 +177,9 @@ def show(id):
     #todo verification
     results = get_elastic(id)
 
-    results = elastic_to_html(results)
+    results, img = elastic_to_html(results)
 
-    return render_template('edit.html', id=id, elements=results['_source'], disabled="disabled")
+    return render_template('edit.html', id=id, elements=results['_source'], disabled="disabled", img=img)
 
 
 @app.route('/download/<type>/<id>', methods=["GET"])
@@ -189,9 +192,10 @@ def download(id, type):
         return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename=test.txt"})
     elif (type == "img"):
         results = get_elastic(id)
+        print(results['_source']['path'])
         #obsah suboru
         generator = json.dumps(results)
-        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename=test.jpg"})
+        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename="+results['_source']['path']+".jpg"})
 
 
 @app.route('/delete/<id>', methods=["GET"])

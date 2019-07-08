@@ -91,7 +91,7 @@
 	        	<ul class="list-group">
 				  {% for element in image_elements %}
 				  <li class="list-group-item">
-				  	{{ element.name }}: <input id="{{ element.name }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search">
+				  	{{ element.name }}: <input id="{{ element.id }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search">
 				  </li>
 				  {% endfor %}
 				</ul>
@@ -115,7 +115,7 @@
 	        	<ul class="list-group">
 				  {% for element in text_elements %}
 				  <li class="list-group-item">
-				  	{{ element.name }}: <input id="{{ element.name }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search">
+				  	{{ element.name }}: <input id="{{ element.id }}" type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default" placeholder="search">
 				  </li>
 				  {% endfor %}
 				</ul>
@@ -135,7 +135,7 @@
 		  <li class="list-group-item" style="border-top: 25px solid #ddd;">
 		  	<div class="row">
 		  		<div class="col-sm-4">
-					<img src="{{ element._source.path }}" style="width: 400px; height: 264px;">		  		 
+					<img src="/static/img/{{ element._source.path }}.jpg" style="width: 400px; height: 264px;">		  		 
 		  		</div>
 		  		<div class="col-sm-8">
 		  			<ul class="list-group">
@@ -153,7 +153,10 @@
 						{% else %}
 					  	<a href="/show/{{element._id}}" style="text-decoration: none"><span class="label label-info">More informations</span></a>
 					  	<a href="/download/txt/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
-					  	<a href="/download/img/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download image</span></a>
+						  	{% if element._source.path != "" %} 
+								<a href="/download/img/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download image</span></a>
+							{% endif %}
+					  	
 					  	{% endif %}
 					  </li>
 					</ul>
@@ -166,8 +169,8 @@
 	{% if num > 1 %}
 	<nav>
 		<ul class="pager">
-			<li class="previous"><a href="javascript:window.location.href=window.location.href+'&start={{previous}}'">Previous</a></li>
-			<li class="next"><a href="javascript:window.location.href=window.location.href+'&start={{next}}'">Next</a></li>
+			<li class="previous"><a href="#" onclick="javascript:set_previous( {{ previous }} );">Previous</a></li>
+			<li class="next"><a href="#" onclick="javascript:set_previous( {{ next }} );">Next</a></li>
 		</ul>
 	</nav>
 	{% endif %}
