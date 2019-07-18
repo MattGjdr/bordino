@@ -1,4 +1,10 @@
 
+def convert_year(y):
+    l = 4 - len(y)
+    for i in range(l):
+        y = "0"+y
+    return y
+
 
 def elastic_to_html(res):
 

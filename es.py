@@ -4,6 +4,7 @@ import elasticsearch
 import datetime
 
 from elasticsearch import Elasticsearch
+from utils import convert_year
 
 es = Elasticsearch()
 
@@ -12,7 +13,7 @@ def add_elastic(file_data):
 
 	e1 = {
 		"author": "Textovty monet",
-	    "title": "Stvorcee textu",
+	    "title": "Kruhyyyy textu",
 	    "chapter": "1",
 	    "date": "2015-01-01",
 	    "location": "France",
@@ -74,10 +75,23 @@ def search_elastic(query,search_type,start,size):
 
 	#@TODO DATE FORMAT
 
+	date_range = query.get("date","0-now")
+	date_range = "".join(date_range.split())
+	if '-' in date_range:
+		year_from = convert_year(date_range.split("-")[0])
+		year_to = convert_year(date_range.split("-")[1])
+	else:
+		year_from = date_range
+		year_to = date_range
+
 	if search_type == "all":
 		print("Error type not specified")
 		query = {
 			"from": start, "size": size,
+			"sort": [
+				{ "added" : {"order" : "desc"}},
+        		"_score"
+			],
 		    "query": {
 		        "match_all": {}
 		    }
@@ -96,6 +110,22 @@ def search_elastic(query,search_type,start,size):
 			for e in element_list:
 				if query.get(e):
 					query_list.append({ "fuzzy": { e: query.get(e,"") }})
+
+
+	# query_list.append({
+	# 	"aggs": {
+	#         "range": {
+	#             "date_range": {
+	#                 "field": "date",
+	#                 "format": "yyyy",
+	#                 "ranges": [
+	#                     { "to": "2000" }, 
+	#                     { "from": "1900" } 
+	#                 ]
+	#             }
+	#         }
+	#     }
+	# })
 
 	print(query_list)
 
@@ -130,8 +160,18 @@ def search_elastic(query,search_type,start,size):
 	            },
 				"filter": {
 					"bool": {
-					    "should": key_list
+					    "should": key_list,
+					    "must": {
+							"range" : {
+					            "date" : {
+					            	"format": "yyyy",					         
+					                "gte" : year_from,
+					                "lte" : year_to
+					            }
+					        }
+					    }
 					}
+
 				}
 		    }
 		},	  

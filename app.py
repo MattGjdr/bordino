@@ -26,27 +26,33 @@ app.secret_key = 'any random string'
 all_elements = [
     {
         'name': 'Title of work',
-        'id': 'title'
+        'id': 'title',
+        'placeholder': 'text'
     },
     {
         'name': 'Date',
-        'id': 'date'
+        'id': 'date',
+        'placeholder': 'write years from-to, (eg. 100-120)'
     },
     {
         'name': 'Location',
-        'id': 'location'
+        'id': 'location',
+        'placeholder': 'text'
     },
     {
         'name': 'Content of work',
-        'id': 'content'
+        'id': 'content',
+        'placeholder': 'text'
     },
     {
         'name': 'Comment about work',
-        'id': 'comment'
+        'id': 'comment',
+        'placeholder': 'text'
     },
     {
         'name': 'Bibliographic references',
-        'id': 'references'
+        'id': 'references',
+        'placeholder': 'text'
     }
 ]
 
@@ -56,26 +62,30 @@ image_elements = all_elements.copy()
 text_elements.append(
     {
         'name': 'Author of work',
-        'id': 'author'
+        'id': 'author',
+        'placeholder': 'text'
     }
 )
 text_elements.append(
     {
         'name': 'Chapter of work',
-        'id': 'chapter'
+        'id': 'chapter',
+        'placeholder': 'text'
     }
 )
 text_elements.append(
     {
         'name': 'Latin text',
-        'id': 'latin'
+        'id': 'latin',
+        'placeholder': 'text'
     }
 )
 
 image_elements.append(
     {
         'name': 'material',
-        'id': 'material'
+        'id': 'material',
+        'placeholder': 'text'
     }
 )
 

@@ -9,6 +9,7 @@ from es import add_elastic
 
 
 UPLOAD_FOLDER = '/home/matus/Documents/uploads'
+STATIC_IMAGE_FOLDER = '/home/matus/Documents/bordino/static/img'
 
 TXT_EXTENSIONS = set(['txt'])
 IMG_EXTENSIONS = set(['jpg'])
@@ -47,8 +48,10 @@ def upload_file(request):
                 	hash_img = hashlib.md5(datetime.datetime.now().strftime("%Y-%m-%d %H:%M").encode("utf-8")).hexdigest()
                 	filename = secure_filename(file.filename)
                 	file.save(os.path.join(UPLOAD_FOLDER, filename))
-                	#todo, covnert image
+                	
                 	os.system("cp "+os.path.join(UPLOAD_FOLDER, filename)+" "+ os.path.join(UPLOAD_FOLDER, hash_img+".jpg"))
+                	#todo, convert image
+                	os.system("cp "+os.path.join(UPLOAD_FOLDER, hash_img+".jpg")+" "+ os.path.join(STATIC_IMAGE_FOLDER, hash_img+".jpg &"))
                 #otherwise parse it and upload to elastic
                 if file and allowed_file_txt(file.filename):
                     filename = secure_filename(file.filename)

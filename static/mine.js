@@ -114,12 +114,12 @@ $(document).ready(function() {
 				console.log("collapseall search");
 				post_to_url('/', {
 					type: "imgtxt",
-				    title: $('#title').val(),
-				    date: $('#date').val(),
-				    location: $('#location').val(),
-				    content: $('#content').val(),
-				    comment: $('#comment').val(),
-				    references: $('#references').val(),
+				    title: $('#title_a').val(),
+				    date: $('#date_a').val(),
+				    location: $('#location_a').val(),
+				    content: $('#content_a').val(),
+				    comment: $('#comment_a').val(),
+				    references: $('#references_a').val(),
 				    keys: options
 				}, 'get');
 			}
@@ -127,13 +127,13 @@ $(document).ready(function() {
 				console.log("collapseimage search");
 				post_to_url('/', {
 					type: "image",
-				    title: $('#title').val(),
-				    date: $('#date').val(),
-				    location: $('#location').val(),
-				    content: $('#content').val(),
-				    comment: $('#comment').val(),
-				    references: $('#references').val(),
-				    material: $('#material').val(),
+				    title: $('#title_i').val(),
+				    date: $('#date_i').val(),
+				    location: $('#location_i').val(),
+				    content: $('#content_i').val(),
+				    comment: $('#comment_i').val(),
+				    references: $('#references_i').val(),
+				    material: $('#material_i').val(),
 				    keys: options
 				}, 'get');
 			}
@@ -141,15 +141,15 @@ $(document).ready(function() {
 				console.log("collapsetext search");
 				post_to_url('/', {
 					type: "text",
-				    title: $('#title').val(),
-				    date: $('#date').val(),
-				    location: $('#location').val(),
-				    content: $('#content').val(),
-				    comment: $('#comment').val(),
-				    references: $('#references').val(),
-				    author: $('#author').val(),
-				    latin: $('#latin').val(),
-				    chapter: $('#chapter').val(),
+				    title: $('#title_t').val(),
+				    date: $('#date_t').val(),
+				    location: $('#location_t').val(),
+				    content: $('#content_t').val(),
+				    comment: $('#comment_t').val(),
+				    references: $('#references_t').val(),
+				    author: $('#author_t').val(),
+				    latin: $('#latin_t').val(),
+				    chapter: $('#chapter_t').val(),
 				    keys: options
 				}, 'get');
 			}
