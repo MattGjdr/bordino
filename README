@@ -1,1 +1,12 @@
-Initial readme
+This project is website for searching text data in database of objects. 
+The main feature of this project is to search in data by given queries. 
+The  fundamental  tool  used  in  this  project  is  Elasticsearch.
+
+File structure:
+- elastic/ - folder with elasticsearch scripts
+- templates/ - folder with html templates 
+- app.py - python script with functions for main and admin website functionality
+- es.py - python script with functions which are using elasticsearch tool
+- file.py - python script with functions controlling uploading and downloading of files
+- utils.py - python script for conversion between elasticsearch format and our format
+
