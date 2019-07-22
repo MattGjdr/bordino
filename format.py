@@ -48,13 +48,13 @@ def get_data(id_node, node):
 		return node
 
 
-def read_xml(xml_data, hash_img):
+def read_xml(xml_data, type_data, hash_img=""):
 	
 	dict_xml = xmltodict.parse(xml_data)
 	new_item = dict()
 
-	if (hash_img != ""):
-		new_item["path"] = hash_img
+	if (type_data == "img"):
+		# new_item["path"] = hash_img
 		fields = fields_img
 	else:
 		fields = fields_text

@@ -70,6 +70,21 @@ $(document).ready(function() {
 
 	$( "#update" ).click(function() {
 		console.log("update");
+		
+
+		if ($('#imghash').val() === undefined)
+		{
+			post_to_url('/update/txt/'+$('#id').val(), {
+				xml: $('#xml').val()
+			}, 'get');
+		}
+		else
+		{
+			post_to_url('/update/img/'+$('#id').val(), {
+				xml: $('#xml').val()
+			}, 'get');
+		}
+		
 		// post_to_url('/update/'+$('#id').val(), {
 		// 	title: $('#title').val(),
 		//     date: $('#date').val(),
@@ -86,10 +101,7 @@ $(document).ready(function() {
 		//     material: $('#material').val()
 		// }, 'get');
 
-		post_to_url('/update/'+$('#id').val(), {
-			xml: $('#xml').val(),
-			imghash: $('#imghash').val(),
-		}, 'get');
+		
 	});
 
 	function search(){

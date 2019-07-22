@@ -222,13 +222,14 @@ def delete(id):
     return redirect('/')
 
 
-@app.route('/update/<id>', methods=["GET"])
-def upload(id):
+@app.route('/update/<type>/<id>', methods=["GET"])
+def upload(type, id):
     #todo verification
     if 'username' in session:
-        print(request.args.to_dict()['imghash'])
-        parsed_xml = read_xml(request.args.to_dict()['xml'], request.args.to_dict()['imghash'])
+        
+        parsed_xml = read_xml(request.args.to_dict()['xml'], type)
         args = html_to_elastic(parsed_xml)
         update_elastic(id, args)
+  
     return redirect('/edit/'+id)
 
