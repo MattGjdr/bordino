@@ -13,6 +13,8 @@ from es import add_elastic, delete_elastic, get_elastic, search_elastic, update_
 from file import upload_file, UPLOAD_FOLDER
 from utils import elastic_to_html, html_to_elastic, elastic_to_html_all_filter, check_elastic_res
 
+from format import write_xml, read_xml
+
 app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -179,7 +181,9 @@ def edit(id):
         
         results, img = elastic_to_html(results)
 
-        return render_template('edit.html', id=id, elements=results['_source'], disabled="", img=img)
+        xml = write_xml(results['_source'])
+
+        return render_template('edit.html', id=id, elements=results['_source'], xml=xml, disabled="", img=img)
 
 
 @app.route('/show/<id>', methods=["GET"])
@@ -189,7 +193,9 @@ def show(id):
 
     results, img = elastic_to_html(results)
 
-    return render_template('edit.html', id=id, elements=results['_source'], disabled="disabled", img=img)
+    xml = write_xml(results['_source'])
+
+    return render_template('edit.html', id=id, elements=results['_source'], xml=xml, disabled="disabled", img=img)
 
 
 @app.route('/download/<type>/<id>', methods=["GET"])
@@ -220,7 +226,9 @@ def delete(id):
 def upload(id):
     #todo verification
     if 'username' in session:
-        args = html_to_elastic(request.args.to_dict())
+        print(request.args.to_dict()['imghash'])
+        parsed_xml = read_xml(request.args.to_dict()['xml'], request.args.to_dict()['imghash'])
+        args = html_to_elastic(parsed_xml)
         update_elastic(id, args)
     return redirect('/edit/'+id)
 

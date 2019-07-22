@@ -70,20 +70,25 @@ $(document).ready(function() {
 
 	$( "#update" ).click(function() {
 		console.log("update");
+		// post_to_url('/update/'+$('#id').val(), {
+		// 	title: $('#title').val(),
+		//     date: $('#date').val(),
+		//     location: $('#location').val(),
+		//     content: $('#content').val(),
+		//     comment: $('#comment').val(),
+		//     edition: $('#edition').val(),
+		//     translation: $('#translation').val(),
+		//     studies: $('#studies').val(),
+		//     author: $('#author').val(),
+		//     latin: $('#latin').val(),
+		//     chapter: $('#chapter').val(),
+		//     keys: $('#keys').val(),
+		//     material: $('#material').val()
+		// }, 'get');
+
 		post_to_url('/update/'+$('#id').val(), {
-			title: $('#title').val(),
-		    date: $('#date').val(),
-		    location: $('#location').val(),
-		    content: $('#content').val(),
-		    comment: $('#comment').val(),
-		    edition: $('#edition').val(),
-		    translation: $('#translation').val(),
-		    studies: $('#studies').val(),
-		    author: $('#author').val(),
-		    latin: $('#latin').val(),
-		    chapter: $('#chapter').val(),
-		    keys: $('#keys').val(),
-		    material: $('#material').val()
+			xml: $('#xml').val(),
+			imghash: $('#imghash').val(),
 		}, 'get');
 	});
 

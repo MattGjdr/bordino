@@ -28,17 +28,23 @@
 <div class="row" style="margin-right: 15%; margin-left: 15%;">
    <div class="col-sm-12">
 		<div class="panel-body">
-			<ul class="list-group" style="columns: 2;-webkit-columns: 2;-moz-columns: 2;">
+			<ul class="list-group">
 			  {% for key, value in elements.items() %}
-			  <li class="list-group-item">
+			  <li class="list-group-item" style="display: none;">
 			  	{{ key }}: 
 			  	<textarea id="{{ key }}" class="form-control" rows="2" {{ disabled }} >{{ value }}</textarea>
 			  </li>
 			  {% endfor %}
 
+			  
+			  <li class="list-group-item"> 
+			  	<textarea id="xml" class="form-control" rows="25" {{ disabled }} >{{ xml }}</textarea>
+			  </li>	
+			  
+
 			  {% if img != "" %}
 			  <li class="list-group-item"> 
-			  	<img src="/static/img/{{ img }}.jpg" style="width: 400px; height: 264px;">
+			  	<img src="/static/img/{{ img }}.jpg" id="imghash" style="width: 400px; height: 264px;">
 			  </li>	
 			  {% endif %}
 
