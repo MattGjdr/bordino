@@ -1,5 +1,8 @@
 
 def convert_year(y):
+    if (y == "now"):
+        return y
+        
     l = 4 - len(y)
     for i in range(l):
         y = "0"+y

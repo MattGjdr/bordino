@@ -75,7 +75,7 @@ def search_elastic(query,search_type,start,size):
 
 	#@TODO DATE FORMAT
 
-	date_range = query.get("date","0-now")
+	date_range = query.get("date","1-now")
 	date_range = "".join(date_range.split())
 	if '-' in date_range:
 		year_from = convert_year(date_range.split("-")[0])
