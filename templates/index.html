@@ -130,7 +130,11 @@
   		</div> 
   	</div>
 </div>
-
+<div class="row" style="margin-right: 15%; margin-left: 15%;">
+	<center>
+		<h5>Showing results: <span class="label label-default">{{ next }} (max.: {{ num }})</span></h5>
+	</center>
+</div>
 <div class="row" style="margin-right: 15%; margin-left: 15%;">
 	<div class="col-sm-12">
 		<ul class="list-group">
@@ -138,7 +142,11 @@
 		  <li class="list-group-item" style="border-top: 25px solid #ddd;">
 		  	<div class="row">
 		  		<div class="col-sm-4">
-					<img src="/static/img/{{ element._source.path }}.jpg" style="width: 400px; height: 264px;">		  		 
+		  			{% if element._source.path %}
+					<img src="/static/img/{{ element._source.path }}.jpg" style="width: 400px; height: 264px;">	
+					{% else %}	  
+					<img src="/static/img/text.jpg" style="width: 400px; height: 264px;">	
+					{% endif %}		 
 		  		</div>
 		  		<div class="col-sm-8">
 		  			<ul class="list-group">
@@ -156,7 +164,7 @@
 						{% else %}
 					  	<a href="/show/{{element._id}}" style="text-decoration: none"><span class="label label-info">More informations</span></a>
 					  	<a href="/download/txt/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
-						  	{% if element._source.path != "" %} 
+						  	{% if element._source.path %} 
 								<a href="/download/img/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download image</span></a>
 							{% endif %}
 					  	
@@ -173,7 +181,9 @@
 	<nav>
 		<ul class="pager">
 			<li class="previous"><a href="#" onclick="javascript:set_previous( {{ previous }} );">Previous</a></li>
+			{% if next < num %}
 			<li class="next"><a href="#" onclick="javascript:set_previous( {{ next }} );">Next</a></li>
+			{% endif %}
 		</ul>
 	</nav>
 	{% endif %}

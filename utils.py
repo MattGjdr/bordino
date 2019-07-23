@@ -1,4 +1,7 @@
-
+"""
+    Function converting year into format yyyy
+    TODO range datumy vsetko dajak este dorobit
+"""
 def convert_year(y):
     if (y == "now"):
         return y
@@ -8,32 +11,43 @@ def convert_year(y):
         y = "0"+y
     return y
 
-
-def elastic_to_html(res):
+"""
+    Function converting elastic results json into different names for html rendering
+"""
+def elastic_to_html(res, html_type="edit"):
 
     # res["_source"]["date"] = res["_source"]["date"]
-    img_name = res["_source"]["path"]
-    del res["_source"]["path"]
+    if "path" in res["_source"]:
+        img_name = res["_source"]["path"]
+        del res["_source"]["path"]
+    else:
+        img_name = ""
+    
+
+    if (html_type == "show"):
+        if ("material" in res["_source"] and type(res["_source"]["material"])==list):
+            res["_source"]["material"] = ', '.join(res["_source"]["material"])
+        if (type(res["_source"]["keys"])==list):
+            res["_source"]["keys"] = ', '.join(res["_source"]["keys"])
+        if (type(res["_source"]["references.studies"])==list):
+            res["_source"]["studies"] = '\n\n'.join(res["_source"]["references.studies"])
+        else:
+            res["_source"]["studies"] = res["_source"]["references.studies"]
+        if "references.translation" in res["_source"]:
+            res["_source"]["translation"] = res["_source"]["references.translation"]
+            del res["_source"]["references.translation"]
+        
+        res["_source"]["edition"] = res["_source"]["references.edition"]
+        del res["_source"]["references.edition"]
+        del res["_source"]["references.studies"]
+
     del res["_source"]["added"]
 
-    # if (type(res["_source"]["material"])==list):
-    #     res["_source"]["material"] = ', '.join(res["_source"]["material"])
-    # if (type(res["_source"]["keys"])==list):
-    #     res["_source"]["keys"] = ', '.join(res["_source"]["keys"])
-    # if (type(res["_source"]["references.studies"])==list):
-    #     res["_source"]["studies"] = '\n\n'.join(res["_source"]["references.studies"])
-    # else:
-    #     res["_source"]["studies"] = res["_source"]["references.studies"]
-    res["_source"]["studies"] = res["_source"]["references.studies"]
-    res["_source"]["translation"] = res["_source"]["references.translation"]
-    res["_source"]["edition"] = res["_source"]["references.edition"]
-
-    del res["_source"]["references.edition"]
-    del res["_source"]["references.translation"]
-    del res["_source"]["references.studies"]
-    
     return res, img_name
 
+"""
+    Function not used
+"""
 def html_to_elastic(args):
     
     #res["_source"]["date"] = res["_source"]["date"]
@@ -49,16 +63,30 @@ def html_to_elastic(args):
     
     return args
 
+"""
+    Function get required data from results, 
+    when match_all option is used and no highlight is in results
+"""
 def elastic_to_html_all_filter(res):
     for el in res:
+
+        if (type(el["_source"]["keys"])==list):
+            keys = ', '.join(el["_source"]["keys"])
+        else:
+            keys = el["_source"]["keys"]
+
         el['highlight'] = { 
             "title" : [el['_source']['title']] ,
-            "keys" : [', '.join(el["_source"]["keys"])],
+            "keys" : [keys],
             "date" : [el['_source']['date']]
         }
 
     return res
 
+"""
+    Function check whether score are not 0
+    TODO nemalo by to take vracat
+"""
 def check_elastic_res(res):
     for el in res:
         

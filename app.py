@@ -2,7 +2,7 @@ import os
 import json 
 
 from flask import Flask, render_template
-from flask import request, session, jsonify,send_from_directory, Response
+from flask import request, session, jsonify,send_from_directory, Response, send_file
 
 from elasticsearch import Elasticsearch
 
@@ -101,18 +101,21 @@ reasearch_keys = [
 #######################################################
 
 
+"""
+    Function GET args from query and search in elasticsearch for relevant results
+"""
 @app.route('/', methods=["GET"])
 def home():
     print(request.args)
 
- 
-    size = request.args.get("size", 1, int)
+    num_show_results = 2
+    size = request.args.get("size", num_show_results, int)
     start = request.args.get("start", 0, int)
 
-    next=start+1
+    next=start+num_show_results
 
-    if start>0:
-        previous = start - 1
+    if start>(num_show_results-1):
+        previous = start-num_show_results
     else:
         previous = 0
 
@@ -128,6 +131,7 @@ def home():
     if search_type == "all":
         res = elastic_to_html_all_filter(res) 
     else:
+        #TODO toto by tu tak nemalo byt, google: preco dostavam 0.0 score
         res = check_elastic_res(res)      
 
     # res = results['hits']['hits']
@@ -144,10 +148,13 @@ def home():
         num=num_of_results,
         admin=admin,
         next=next,
-        previous=previous
+        previous=previous,
+        num_show_results=num_show_results
     )
 
-
+"""
+    Function create and release season and check username password
+"""
 @app.route('/login', methods=["GET","POST"])
 def login():
     
@@ -172,7 +179,9 @@ def login():
 
     return render_template('login.html', logged=logged)
 
-
+"""
+    Function show info from elasticsearch based on ID, which can be edited
+"""
 @app.route('/edit/<id>', methods=["GET"])
 def edit(id):
     #todo verification
@@ -185,35 +194,42 @@ def edit(id):
 
         return render_template('edit.html', id=id, elements=results['_source'], xml=xml, disabled="", img=img)
 
-
+"""
+    Function show info from elasticsearch based on ID
+"""
 @app.route('/show/<id>', methods=["GET"])
 def show(id):
     #todo verification
     results = get_elastic(id)
 
-    results, img = elastic_to_html(results)
+    results, img = elastic_to_html(results, "show")
 
-    xml = write_xml(results['_source'])
+    xml = "" #write_xml(results['_source'])
 
     return render_template('edit.html', id=id, elements=results['_source'], xml=xml, disabled="disabled", img=img)
 
-
+"""
+    Function create file for downloading, it could be image or text
+"""
 @app.route('/download/<type>/<id>', methods=["GET"])
 def download(id, type):
     #todo verification
     if (type == "txt"):
         results = get_elastic(id)
         #obsah suboru
-        generator = json.dumps(results)
-        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename=test.txt"})
+        xml = write_xml(results['_source'])
+        generator = xml
+        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename="+id+".xml"})
     elif (type == "img"):
         results = get_elastic(id)
-        print(results['_source']['path'])
+        hash_img = results['_source']['path']
         #obsah suboru
-        generator = json.dumps(results)
-        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename="+results['_source']['path']+".jpg"})
+        path = os.path.join(UPLOAD_FOLDER, hash_img+".jpg")
+        return send_file(path, as_attachment=True)
 
-
+"""
+    Function delete info from elasticsearch based on ID
+"""
 @app.route('/delete/<id>', methods=["GET"])
 def delete(id):
     #todo verification
@@ -221,15 +237,15 @@ def delete(id):
         delete_elastic(id)
     return redirect('/')
 
-
+"""
+    Function update info from elasticsearch based on ID
+"""
 @app.route('/update/<type>/<id>', methods=["GET"])
 def upload(type, id):
     #todo verification
     if 'username' in session:
-        
         parsed_xml = read_xml(request.args.to_dict()['xml'], type)
-        args = html_to_elastic(parsed_xml)
-        update_elastic(id, args)
+        update_elastic(id, parsed_xml)
   
     return redirect('/edit/'+id)
 

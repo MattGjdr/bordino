@@ -50,7 +50,11 @@
    </div>
 </div>
 <div class="row" style="margin-right: 15%; margin-left: 15%;">
-   <span class="label label-info">{{ message }}</span>
+  {% if message %}
+  <center>
+   Message from server: {{ message }}
+ </center>
+ {% endif %}
 </div>
 {% else %}
 <div class="row" style="margin-right: 15%; margin-left: 15%;">

@@ -29,18 +29,18 @@
    <div class="col-sm-12">
 		<div class="panel-body">
 			<ul class="list-group">
-			  {% for key, value in elements.items() %}
-			  <li class="list-group-item" style="display: none;">
-			  	{{ key }}: 
-			  	<textarea id="{{ key }}" class="form-control" rows="2" {{ disabled }} >{{ value }}</textarea>
-			  </li>
-			  {% endfor %}
-
-			  
+			  {% if disabled == "disabled" %}
+				  {% for key, value in elements.items() %}
+				  <li class="list-group-item">
+				  	{{ key }}: 
+				  	<textarea id="{{ key }}" class="form-control" rows="2" {{ disabled }} >{{ value }}</textarea>
+				  </li>
+				  {% endfor %}
+			  {% else %}  
 			  <li class="list-group-item"> 
 			  	<textarea id="xml" class="form-control" rows="25" {{ disabled }} >{{ xml }}</textarea>
 			  </li>	
-			  
+			  {% endif %}
 
 			  {% if img != "" %}
 			  <li class="list-group-item"> 

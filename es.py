@@ -8,40 +8,28 @@ from utils import convert_year
 
 es = Elasticsearch()
 
+"""
+    Function add data to elasticsearch
+"""
 def add_elastic(file_data):
-	now = datetime.datetime.now()
+	
+	print(file_data)
 
-	e1 = {
-		"author": "Textovty monet",
-	    "title": "Kruhyyyy textu",
-	    "chapter": "1",
-	    "date": "2015-01-01",
-	    "location": "France",
-	    "latin": "Spiritus sanctis",
-	    "content": "Ine vecicky",
-	    "comment": "To znamena ze toto hento",
-	    "material": "wall painting",
-	    "references.edition": "Bib1",
-	    "references.translation": "Bib2",
-	    "references.studies": "Bib3",
-	    "keys": ["patronage","kissing"],
-	    "path": "",
-	    "added": now.strftime("%Y-%m-%d")
-	}
-
-	string_id = e1["title"]+e1["date"]+e1["content"]
+	string_id = file_data["title"]+file_data["date"]+file_data["content"]
 	
 	hash_id = hashlib.md5(string_id.encode('utf-8'))
 
 	try:
-		res = es.index(index='my_index',id=hash_id.hexdigest(),body=e1)
+		res = es.index(index='my_index',id=hash_id.hexdigest(),body=file_data)
 	except elasticsearch.ElasticsearchException as es1:
 		print('error add')
 
 	if res == False:
 		print("Add to index failed")
 
-
+"""
+    Function delete data from elasticsearch based on id
+"""
 def delete_elastic(id):
 	try:
 		res=es.delete(index='my_index',id=id)
@@ -51,6 +39,9 @@ def delete_elastic(id):
 	if res['result'] != "deleted":
 		print("Delete from index failed")
 
+"""
+    Function get data from elasticsearch based on id
+"""
 def get_elastic(id):
 	try:
 		results = es.get(index='my_index', id=id)
@@ -60,15 +51,13 @@ def get_elastic(id):
 	print(results)
 	return results
 
-
+"""
+    Function search data in elasticsearch based on given query
+    Also other arguments are considered during creation of elastic body query
+"""
 def search_elastic(query,search_type,start,size):
-	# "query": {
-	#     "multi_match" : {
-	#       "query":    "Picasso",
-	#       "fields": [ "author", "title", "chapter", "location", "latin", "content", "comment", "material", "references.*", "keys" ] 
-	#     }
-	#   },
-	element_list = [ "author", "title", "chapter", "location", "latin", "content", "comment", "material", "references.*" ]
+	
+	element_list = [ "author", "title", "chapter", "location", "latin", "content", "comment", "material","references.studies","references.edition","references.translation", "keys" ]
 	#keys different parsing
 	query_list = []
 	key_list = []
@@ -111,23 +100,18 @@ def search_elastic(query,search_type,start,size):
 				if query.get(e):
 					query_list.append({ "fuzzy": { e: query.get(e,"") }})
 
-
+	#todo
+	#DATE RANGE
+	# print(query_list)
 	# query_list.append({
-	# 	"aggs": {
-	#         "range": {
-	#             "date_range": {
-	#                 "field": "date",
-	#                 "format": "yyyy",
-	#                 "ranges": [
-	#                     { "to": "2000" }, 
-	#                     { "from": "1900" } 
-	#                 ]
-	#             }
-	#         }
-	#     }
+	# 	"range" : {
+ #            "date" : {
+ #            	"format": "yyyy",					         
+ #                "gte" : year_from,
+ #                "lte" : year_to
+ #            }
+ #        }
 	# })
-
-	print(query_list)
 
 	if query.get("keys"):
 		keys = query.get("keys","").split(",")
@@ -160,16 +144,7 @@ def search_elastic(query,search_type,start,size):
 	            },
 				"filter": {
 					"bool": {
-					    "should": key_list,
-					    "must": {
-							"range" : {
-					            "date" : {
-					            	"format": "yyyy",					         
-					                "gte" : year_from,
-					                "lte" : year_to
-					            }
-					        }
-					    }
+					    "should": key_list
 					}
 
 				}
@@ -194,9 +169,9 @@ def search_elastic(query,search_type,start,size):
 		    }
 		}
 	}
-
+	print("===========query==========")
 	print(query)
-	#todo problem s highglight ak je ngram
+	print("========================")
 	try:
 		results = es.search(index='my_index',body=query)
 	except:
@@ -206,6 +181,9 @@ def search_elastic(query,search_type,start,size):
 	print(results)
 	return results
 
+"""
+    Function add new data (args) to elasticsearch based on id
+"""
 def update_elastic(id, args):
 	print(args)
 	try:
