@@ -76,8 +76,7 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
              "type":"keyword"
           },
           "path": {
-             "type":"text",
-             "index": false
+             "type":"text" 
           },
           "added": {
              "type":"date"

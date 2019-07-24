@@ -20,6 +20,7 @@ def validate_date(date_text):
             raise ValueError
         return date_text
     except ValueError:
+        print("Incorrect data format, should be YYYY-MM-DD")
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
     return date_text
@@ -50,21 +51,24 @@ def get_data(id_node, node):
     Function convert xml to dict
 """
 def read_xml(xml_data, type_data, hash_img=""):
-	
-	dict_xml = xmltodict.parse(xml_data)
-	new_item = dict()
+	try:
+		dict_xml = xmltodict.parse(xml_data)
 
-	if (type_data == "img"):
-		fields = fields_img
-	else:
-		fields = fields_text
+		new_item = dict()
 
-	for f in fields:
-		if f in dict_xml['data']:
-			new_item[f] = get_data(f, dict_xml['data'][f])
+		if (type_data == "img"):
+			fields = fields_img
 		else:
-			return False
+			fields = fields_text
 
+		for f in fields:
+			if f in dict_xml['data']:
+				new_item[f] = get_data(f, dict_xml['data'][f])
+			else:
+				return False
+
+	except:
+		return False
 	#extra fields not in XML file
 	now = datetime.now()
 	new_item["added"] = now.strftime("%Y-%m-%d")

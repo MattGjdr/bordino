@@ -22,7 +22,7 @@ def add_elastic(file_data):
 	try:
 		res = es.index(index='my_index',id=hash_id.hexdigest(),body=file_data)
 	except elasticsearch.ElasticsearchException as es1:
-		print('error add')
+		print(es1)
 
 	if res == False:
 		print("Add to index failed")
@@ -34,7 +34,7 @@ def delete_elastic(id):
 	try:
 		res=es.delete(index='my_index',id=id)
 	except elasticsearch.ElasticsearchException as es1:
-		print('error delete')
+		print(es1)
 
 	if res['result'] != "deleted":
 		print("Delete from index failed")
@@ -46,10 +46,27 @@ def get_elastic(id):
 	try:
 		results = es.get(index='my_index', id=id)
 	except elasticsearch.ElasticsearchException as es1:
-		print('error get')
+		print(es1)
 
 	print(results)
 	return results
+
+def search_all(start, size, check_date):
+	query = {
+		"from": start, "size": size,
+		"sort": [
+			{ "added" : {"order" : "desc"}},
+    		"_score"
+		],
+	    "query": {
+	        "match_all": {}
+	    }
+	}
+	try:
+		results = es.search(index='my_index',body=query)
+	except elasticsearch.ElasticsearchException as es1:
+		print(es1)
+	return results, check_date
 
 """
     Function search data in elasticsearch based on given query
@@ -57,12 +74,14 @@ def get_elastic(id):
 """
 def search_elastic(query,search_type,start,size):
 	
-	element_list = [ "author", "title", "chapter", "location", "latin", "content", "comment", "material","references.studies","references.edition","references.translation", "keys" ]
+	element_list = [ "date", "author", "title", "chapter", "location", "latin", "content", "comment", "material","references.studies","references.edition","references.translation" ]
 	#keys different parsing
 	query_list = []
 	key_list = []
 
-	#@TODO DATE FORMAT
+	query_bool = "should"
+	#DATE check
+	check_date = False
 
 	date_range = query.get("date","1-now")
 	date_range = "".join(date_range.split())
@@ -74,44 +93,54 @@ def search_elastic(query,search_type,start,size):
 		year_to = date_range
 
 	if search_type == "all":
-		print("Error type not specified")
-		query = {
-			"from": start, "size": size,
-			"sort": [
-				{ "added" : {"order" : "desc"}},
-        		"_score"
-			],
-		    "query": {
-		        "match_all": {}
-		    }
-		}
-		try:
-			results = es.search(index='my_index',body=query)
-		except:
-			print('error searching')
-		return results
+		return search_all(start, size, check_date);
 
 	else:
 		if search_type == "basic":
+			element_list.pop(0)
 			for e in element_list:
 				query_list.append({ "fuzzy": { e: query.get("q","") }})
 		else:
+			#if specific search then even REASEARCH KEYS are used as AND not as OR
+			query_bool = "must"
 			for e in element_list:
 				if query.get(e):
-					query_list.append({ "fuzzy": { e: query.get(e,"") }})
+					#IMPORTANT "date" should be first in element_list
+					if (e == "date"):
+						check_date = True
+						query_list.append({
+							"range" : {
+						        "date" : {
+						        	"format": "yyyy",					         
+						            "gte" : year_from,
+						            "lte" : year_to
+						        }
+						    }
+						})
+					#string/text type
+					else:
+						query_list.append({ "fuzzy": { e: query.get(e,"") }})
 
-	#todo
-	#DATE RANGE
-	# print(query_list)
-	# query_list.append({
-	# 	"range" : {
- #            "date" : {
- #            	"format": "yyyy",					         
- #                "gte" : year_from,
- #                "lte" : year_to
- #            }
- #        }
-	# })
+
+	#image / text filter, which should be searched, whether one or other or both
+	exist_query = False
+
+	if search_type == "text":
+		exist_query = {
+			"bool": {
+				"must_not": [{
+					"exists": {
+						"field" : "path"
+					}
+				}]
+			}
+		}
+	if search_type == "image":
+		exist_query = {
+			"exists": {
+				"field" : "path"
+			}
+		}
 
 	if query.get("keys"):
 		keys = query.get("keys","").split(",")
@@ -120,35 +149,25 @@ def search_elastic(query,search_type,start,size):
 
 	print(key_list)
 
-	filter_field = "random_field_value"
-	must_field = "must_not"
-	if search_type == "text":
-		must_field = "must_not"
-		filter_field = "path"
-
-	if search_type == "image":
-		must_field = "must"
-		filter_field = "path"
-
+	if exist_query:
+		bool_query = {
+			query_bool: [query_list, key_list],
+			"filter": {
+				"bool": {
+				    "should": [exist_query]
+				}
+			}
+		}
+	else:
+		bool_query = {
+			query_bool: [query_list, key_list]
+		}
 
 
 	query = {
 		"from": start, "size": size,
 		"query": { 
-		    "bool": { 
-				"should": query_list,
-				must_field: {
-	                "exists": {
-	                    "field": filter_field
-	                }
-	            },
-				"filter": {
-					"bool": {
-					    "should": key_list
-					}
-
-				}
-		    }
+		    "bool": bool_query
 		},	  
 		  
 		"highlight" : {
@@ -156,16 +175,7 @@ def search_elastic(query,search_type,start,size):
 		    "pre_tags" : ["<b>"],
 		    "post_tags" : ["</b>"],
 		    "fields" : {
-		        "author" : {},
-		        "title" : {},
-		        "chapter" : {},
-		        "location" : {},
-		        "latin" : {},
-		        "content" : {},
-		        "comment" : {},
-		        "material" : {},
-		        "references.*" : {},
-		        "keys" : {}
+		        "*" : {}
 		    }
 		}
 	}
@@ -174,12 +184,12 @@ def search_elastic(query,search_type,start,size):
 	print("========================")
 	try:
 		results = es.search(index='my_index',body=query)
-	except:
-		print('error searching')
-		return []
+	except elasticsearch.ElasticsearchException as es1:
+		print(es1)
+		return [], check_date
 
 	print(results)
-	return results
+	return results, check_date
 
 """
     Function add new data (args) to elasticsearch based on id
@@ -188,5 +198,5 @@ def update_elastic(id, args):
 	print(args)
 	try:
 		es.update(index='my_index',id=id, body={"doc": args})
-	except:
-		print('error updating')
+	except elasticsearch.ElasticsearchException as es1:
+		print(es1)

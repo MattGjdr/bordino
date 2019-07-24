@@ -92,6 +92,18 @@ def check_elastic_res(res):
         
         if el['_score'] == 0.0:
             print(el['_score'])
-            return []
+            return True
 
+    return False
+
+"""
+    Function add date to highlight, becasue elasticserach cannot do that
+"""
+def append_date_to_res(res):
+    for el in res:
+        if 'highlight' in el:
+            el['highlight']['date'] = [el['_source']['date']]
+        else:
+            el['highlight'] = dict()
+            el['highlight']['date'] = [el['_source']['date']]
     return res

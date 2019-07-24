@@ -11,7 +11,7 @@ from werkzeug.utils import secure_filename
 
 from es import add_elastic, delete_elastic, get_elastic, search_elastic, update_elastic
 from file import upload_file, UPLOAD_FOLDER
-from utils import elastic_to_html, html_to_elastic, elastic_to_html_all_filter, check_elastic_res
+from utils import elastic_to_html, html_to_elastic, elastic_to_html_all_filter, check_elastic_res, append_date_to_res
 
 from format import write_xml, read_xml
 
@@ -125,14 +125,22 @@ def home():
     if 'username' in session:
         admin = True
     
-    results = search_elastic(request.args,search_type,start,size)
-    res = results['hits']['hits']
-    num_of_results = results['hits']['total']['value']
-    if search_type == "all":
-        res = elastic_to_html_all_filter(res) 
-    else:
-        #TODO toto by tu tak nemalo byt, google: preco dostavam 0.0 score
-        res = check_elastic_res(res)      
+    results, check_date = search_elastic(request.args,search_type,start,size)
+
+    try:
+        res = results['hits']['hits']
+        num_of_results = results['hits']['total']['value']
+
+        if search_type == "all":
+            res = elastic_to_html_all_filter(res) 
+        else:
+            if check_date:
+                res = append_date_to_res(res)
+            if check_elastic_res(res):
+                res = elastic_to_html_all_filter(res)
+    except:
+        res = []
+        num_of_results = 0      
 
     # res = results['hits']['hits']
     # num_of_results = 0
