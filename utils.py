@@ -78,7 +78,7 @@ def elastic_to_html_all_filter(res):
         el['highlight'] = { 
             "title" : [el['_source']['title']] ,
             "keys" : [keys],
-            "date" : [el['_source']['date']]
+            "date" : [el['_source']['date']['gte']+"-"+el['_source']['date']['lte'] if el['_source']['date']['lte'] != el['_source']['date']['gte'] else el['_source']['date']['lte']]
         }
 
     return res
@@ -102,8 +102,8 @@ def check_elastic_res(res):
 def append_date_to_res(res):
     for el in res:
         if 'highlight' in el:
-            el['highlight']['date'] = [el['_source']['date']]
+            el['highlight']['date'] = [el['_source']['date']['gte']+"-"+el['_source']['date']['lte'] if el['_source']['date']['lte'] != el['_source']['date']['gte'] else el['_source']['date']['lte']]
         else:
             el['highlight'] = dict()
-            el['highlight']['date'] = [el['_source']['date']]
+            el['highlight']['date'] = [el['_source']['date']['gte']+"-"+el['_source']['date']['lte'] if el['_source']['date']['lte'] != el['_source']['date']['gte'] else el['_source']['date']['lte']]
     return res

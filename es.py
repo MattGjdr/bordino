@@ -2,6 +2,7 @@ import os
 import hashlib
 import elasticsearch
 import datetime
+import json
 
 from elasticsearch import Elasticsearch
 from utils import convert_year
@@ -15,7 +16,7 @@ def add_elastic(file_data):
 	
 	print(file_data)
 
-	string_id = file_data["title"]+file_data["date"]+file_data["content"]
+	string_id = file_data["title"]+json.dumps(file_data["date"])+file_data["content"]
 	
 	hash_id = hashlib.md5(string_id.encode('utf-8'))
 
@@ -83,7 +84,7 @@ def search_elastic(query,search_type,start,size):
 	#DATE check
 	check_date = False
 
-	date_range = query.get("date","1-now")
+	date_range = query.get("date","0-2222")
 	date_range = "".join(date_range.split())
 	if '-' in date_range:
 		year_from = convert_year(date_range.split("-")[0])
@@ -99,7 +100,16 @@ def search_elastic(query,search_type,start,size):
 		if search_type == "basic":
 			element_list.pop(0)
 			for e in element_list:
-				query_list.append({ "fuzzy": { e: query.get("q","") }})
+				# query_list.append({ "fuzzy": { e: query.get("q","") }})
+				query_list.append({
+					"match": {
+						e: {
+							"query": query.get("q",""),
+							"fuzziness": "AUTO",
+							"operator": "or"
+						}
+					}
+				})
 		else:
 			#if specific search then even REASEARCH KEYS are used as AND not as OR
 			query_bool = "must"
@@ -110,8 +120,7 @@ def search_elastic(query,search_type,start,size):
 						check_date = True
 						query_list.append({
 							"range" : {
-						        "date" : {
-						        	"format": "yyyy",					         
+						        "date" : {					         
 						            "gte" : year_from,
 						            "lte" : year_to
 						        }
@@ -119,7 +128,16 @@ def search_elastic(query,search_type,start,size):
 						})
 					#string/text type
 					else:
-						query_list.append({ "fuzzy": { e: query.get(e,"") }})
+						# query_list.append({ "fuzzy": { e: query.get(e,"") }})
+						query_list.append({
+							"match": {
+								e: {
+									"query": query.get(e,""),
+									"fuzziness": "AUTO",
+									"operator": "and"
+								}
+							}
+						})
 
 
 	#image / text filter, which should be searched, whether one or other or both

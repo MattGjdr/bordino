@@ -15,15 +15,15 @@ fields_img = ["title","date","location","content","comment","references.studies"
 
 
 def validate_date(date_text):
-    try:
-        if date_text != datetime.strptime(date_text, "%Y-%m-%d").strftime('%Y-%m-%d'):
-            raise ValueError
-        return date_text
-    except ValueError:
-        print("Incorrect data format, should be YYYY-MM-DD")
-        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+	date_dict = dict()
 
-    return date_text
+	if '-' in date_text:
+		date_dict["gte"] = convert_year(date_text.split("-")[0])
+		date_dict["lte"] = convert_year(date_text.split("-")[1])
+	else:
+		date_dict["gte"] = date_text
+		date_dict["lte"] = date_text
+	return date_dict
 
 """
     Function parse data into needed format

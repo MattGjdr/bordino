@@ -3,11 +3,18 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
 {
   "settings": {
     "analysis": {
+      "filter": {
+        "my_stop": {
+            "type": "stop",
+            "stopwords":  "_english_"
+        }
+      },
       "analyzer": {
         "my_analyzer": {
           "tokenizer": "standard",
       	  "filter": [
-      	  	"lowercase"
+      	  	"lowercase",
+            "my_stop"
       	  ]
         }
       },
@@ -35,7 +42,7 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
              "analyzer": "my_analyzer"
           },
           "date": {
-             "type":"date"
+             "type":"integer_range"
           },
           "location": {
              "type":"text",
