@@ -25,8 +25,8 @@ def elastic_to_html(res, html_type="edit"):
     
 
     if (html_type == "show"):
-        if ("material" in res["_source"] and type(res["_source"]["material"])==list):
-            res["_source"]["material"] = ', '.join(res["_source"]["material"])
+        # if ("material" in res["_source"] and type(res["_source"]["material"])==list):
+        #     res["_source"]["material"] = ', '.join(res["_source"]["material"])
         if (type(res["_source"]["keys"])==list):
             res["_source"]["keys"] = ', '.join(res["_source"]["keys"])
         if (type(res["_source"]["references.studies"])==list):

@@ -103,4 +103,3 @@ def upload_to_elastic(file_data, hash_img=""):
     else:
         add_elastic(new_item)
         return True
-

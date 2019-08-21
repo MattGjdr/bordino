@@ -10,19 +10,23 @@ import xmltodict
 
 xmldoc = minidom.parse('items.xml')
 
-fields_text = ["author","title", "chapter","date","location","latin","content","comment","references.studies","references.edition","references.translation","keys"]
-fields_img = ["title","date","location","content","comment","references.studies","references.edition","material","keys"]
+fields_text = ["author","title","type", "chapter","date","location","latin","content","comment","references.studies","references.edition","references.translation","keys"]
+fields_img = ["title","date","location","content","comment","references.studies","references.edition","type","keys"]
 
-
-def validate_date(date_text):
+"""
+    Function get date range from date field
+"""
+def get_date(date_text):
 	date_dict = dict()
-
+	
 	if '-' in date_text:
-		date_dict["gte"] = convert_year(date_text.split("-")[0])
-		date_dict["lte"] = convert_year(date_text.split("-")[1])
+		date_dict["gte"] = date_text.split("-")[0]
+		date_dict["lte"] = date_text.split("-")[1]
 	else:
 		date_dict["gte"] = date_text
 		date_dict["lte"] = date_text
+
+	print(date_dict)
 	return date_dict
 
 """
@@ -37,7 +41,7 @@ def get_data(id_node, node):
 			return node
 
 	elif ((id_node == "date")):
-		return validate_date(node)
+		return get_date(node)
 
 	elif (id_node == "references.studies"):
 		if isinstance(node,dict):
@@ -51,6 +55,7 @@ def get_data(id_node, node):
     Function convert xml to dict
 """
 def read_xml(xml_data, type_data, hash_img=""):
+	print(type_data)
 	try:
 		dict_xml = xmltodict.parse(xml_data)
 
@@ -62,12 +67,15 @@ def read_xml(xml_data, type_data, hash_img=""):
 			fields = fields_text
 
 		for f in fields:
+			print(f)
 			if f in dict_xml['data']:
 				new_item[f] = get_data(f, dict_xml['data'][f])
 			else:
+				print("Uploading file is corrupted")
 				return False
 
 	except:
+		print("Uploading file is corrupted exception")
 		return False
 	#extra fields not in XML file
 	now = datetime.now()

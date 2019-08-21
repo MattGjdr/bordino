@@ -55,8 +55,14 @@ all_elements = [
         'name': 'Bibliographic references',
         'id': 'references',
         'placeholder': 'text'
+    },
+    {
+        'name': 'Type of work',
+        'id': 'type',
+        'placeholder': 'text'
     }
 ]
+
 
 text_elements = all_elements.copy()
 image_elements = all_elements.copy()
@@ -83,13 +89,6 @@ text_elements.append(
     }
 )
 
-image_elements.append(
-    {
-        'name': 'material',
-        'id': 'material',
-        'placeholder': 'text'
-    }
-)
 
 reasearch_keys = [
     'patronage','fabricating','restoring', 'worshiping', 'praying',
@@ -119,7 +118,7 @@ def home():
     else:
         previous = 0
 
-    search_type = request.args.get("type", "all")
+    search_type = request.args.get("t", "all")
 
     admin = False
     if 'username' in session:

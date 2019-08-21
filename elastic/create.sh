@@ -60,8 +60,9 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
              "type":"text",
              "analyzer": "my_analyzer"
           },
-          "material": {
-             "type":"keyword"
+          "type": {
+             "type":"text",
+             "analyzer": "my_analyzer"
           },
           "references": {
              "properties": {

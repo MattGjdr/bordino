@@ -75,7 +75,7 @@ def search_all(start, size, check_date):
 """
 def search_elastic(query,search_type,start,size):
 	
-	element_list = [ "date", "author", "title", "chapter", "location", "latin", "content", "comment", "material","references.studies","references.edition","references.translation" ]
+	element_list = [ "date", "author", "title", "chapter", "location", "latin", "content", "comment", "type","references.studies","references.edition","references.translation" ]
 	#keys different parsing
 	query_list = []
 	key_list = []
@@ -99,17 +99,27 @@ def search_elastic(query,search_type,start,size):
 	else:
 		if search_type == "basic":
 			element_list.pop(0)
-			for e in element_list:
-				# query_list.append({ "fuzzy": { e: query.get("q","") }})
-				query_list.append({
-					"match": {
-						e: {
-							"query": query.get("q",""),
-							"fuzziness": "AUTO",
-							"operator": "or"
-						}
+			# for e in element_list:
+			# 	# query_list.append({ "fuzzy": { e: query.get("q","") }})
+			# 	query_list.append({
+			# 		"match": {
+			# 			e: {
+			# 				"query": query.get("q",""),
+			# 				"fuzziness": "AUTO",
+			# 				"operator": "or"
+			# 			}
+			# 		}
+			# 	})
+			query_list.append({
+				"multi_match": 
+					{
+						"query": query.get("q",""),
+						"fuzziness": "AUTO",
+						"fields": element_list
 					}
-				})
+			
+			})
+
 		else:
 			#if specific search then even REASEARCH KEYS are used as AND not as OR
 			query_bool = "must"
