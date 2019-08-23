@@ -44,7 +44,9 @@
 
 			  {% if img != "" %}
 			  <li class="list-group-item"> 
-			  	<img src="/static/img/{{ img }}.jpg" id="imghash" style="max-width: 400px; max-height: 264px;">
+			  	{% for i in img %}
+				  	<img src="/static/img/{{ i }}.jpg" id="imghash" style="max-width: 200px; max-height: 200px;">
+				{% endfor %}		
 			  </li>	
 			  {% endif %}
 

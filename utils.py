@@ -23,7 +23,7 @@ def elastic_to_html(res, html_type="edit"):
     else:
         img_name = ""
     
-
+    res['_source']['date'] = res['_source']['date']['gte']+"-"+res['_source']['date']['lte'] if res['_source']['date']['lte'] != res['_source']['date']['gte'] else res['_source']['date']['lte']
     if (html_type == "show"):
         # if ("material" in res["_source"] and type(res["_source"]["material"])==list):
         #     res["_source"]["material"] = ', '.join(res["_source"]["material"])

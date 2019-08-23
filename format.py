@@ -55,7 +55,7 @@ def get_data(id_node, node):
     Function convert xml to dict
 """
 def read_xml(xml_data, type_data, hash_img=""):
-	print(type_data)
+	
 	try:
 		dict_xml = xmltodict.parse(xml_data)
 
@@ -67,23 +67,27 @@ def read_xml(xml_data, type_data, hash_img=""):
 			fields = fields_text
 
 		for f in fields:
-			print(f)
+			
 			if f in dict_xml['data']:
 				new_item[f] = get_data(f, dict_xml['data'][f])
 			else:
 				print("Uploading file is corrupted")
-				return False
+				return False, "Wrong field "+f+" inside XML file"
 
+	
+	except xmltodict.expat.ExpatError:
+		print("Invalid xml!")
+		return False, "Invalid xml! Use some validator to check validity."
 	except:
 		print("Uploading file is corrupted exception")
-		return False
+		return False, "File corrupted"
 	#extra fields not in XML file
 	now = datetime.now()
 	new_item["added"] = now.strftime("%Y-%m-%d")
 	if hash_img:
 		new_item["path"] = hash_img
 
-	return new_item
+	return new_item, ""
 
 """
     Function convert dict to xml

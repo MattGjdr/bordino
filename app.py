@@ -229,10 +229,18 @@ def download(id, type):
         return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename="+id+".xml"})
     elif (type == "img"):
         results = get_elastic(id)
-        hash_img = results['_source']['path']
+        hashes_img = results['_source']['path']
         #obsah suboru
-        path = os.path.join(UPLOAD_FOLDER, hash_img+".jpg")
-        return send_file(path, as_attachment=True)
+        for idx, img in enumerate(hashes_img):
+            hashes_img[idx] = os.path.join(UPLOAD_FOLDER, img+".jpg")
+
+        str_images = " ".join(hashes_img)
+        zip_path = os.path.join(UPLOAD_FOLDER, id+".zip")
+        print(str_images)
+        print(zip_path)
+        os.system("zip -j "+zip_path+" "+str_images)
+        
+        return send_file(zip_path, as_attachment=True)
 
 """
     Function delete info from elasticsearch based on ID
@@ -251,7 +259,7 @@ def delete(id):
 def upload(type, id):
     #todo verification
     if 'username' in session:
-        parsed_xml = read_xml(request.args.to_dict()['xml'], type)
+        parsed_xml, _ = read_xml(request.args.to_dict()['xml'], type)
         update_elastic(id, parsed_xml)
   
     return redirect('/edit/'+id)

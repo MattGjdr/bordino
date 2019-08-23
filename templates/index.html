@@ -11,6 +11,8 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css" type="text/css"/>
 	<link rel="stylesheet" href="{{ url_for('static', filename='mine.css') }}" type="text/css"/>
 	<script type="text/javascript" src="{{ url_for('static', filename='mine.js') }}"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+	<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 
 </head>
 <body style="background-color: #ddd">
@@ -143,10 +145,20 @@
 		  	<div class="row">
 		  		<div class="col-sm-4">
 		  			{% if element._source.path %}
-					<img src="/static/img/{{ element._source.path }}.jpg" style="max-width: 400px; max-height: 264px;">	
+		  				{% for img in element._source.path %}
+				  			<a class="fancybox-thumb" data-fancybox="gallery" href="/static/img/{{ img }}.jpg">
+								<img src="/static/img/{{ img }}.jpg" alt="" 
+								style="max-width: {{ 400/element._source.path|length }}px; max-height: {{ 400/element._source.path|length }}px;"/>
+							</a>
+						{% endfor %}
+					<!-- <img src="/static/img/{{ element._source.path }}.jpg" style="max-width: 400px; max-height: 264px;">	 -->
 					{% else %}	  
-					<img src="/static/img/text.jpg" style="max-width: 400px; max-height: 264px;">	
+					<a class="fancybox-thumb" rel="gallery2" href="/static/img/{{ element._source.path }}.jpg" title="">
+						<img src="/static/img/text.jpg" alt="" style="max-width: 400px; max-height: 264px;"/>
+					</a>
+					<!-- <img src="/static/img/text.jpg" style="max-width: 400px; max-height: 264px;">	 -->
 					{% endif %}		 
+					
 		  		</div>
 		  		<div class="col-sm-8">
 		  			<ul class="list-group">
