@@ -22,6 +22,7 @@
     <ul class="nav navbar-nav">
       <li  class="active"><a href="/">Home</a></li>
       <li><a href="/login">Admin</a></li>
+      <li><a href="/about">About</a></li>
     </ul>
   </div>
 </nav>
@@ -32,7 +33,32 @@
 			  {% if disabled == "disabled" %}
 				  {% for key, value in elements.items() %}
 				  <li class="list-group-item">
-				  	{{ key }}: 
+				  	{% if key == "keys" %}
+					  	Research keys:
+				  	{% endif %}
+				  	{% if key == "studies" %}
+					  	Studies:
+				  	{% endif %}
+				  	{% if key == "edition" %}
+					  	Work reference:
+				  	{% endif %}
+				  	{% if key == "translation" %}
+					  	Translation reference:
+				  	{% endif %}
+				  	
+				  	{% if img != "" %}
+				  		{% for element in image_elements %}
+				  			{% if element.id == key %}
+				  				{{element.name}}:
+				  			{% endif %}
+				  		{% endfor %}
+				  	{% else %}
+				  		{% for element in text_elements %}
+				  			{% if element.id == key %}
+				  				{{element.name}}:
+				  			{% endif %}
+				  		{% endfor %}
+				  	{% endif %} 
 				  	<textarea id="{{ key }}" class="form-control" rows="2" {{ disabled }} >{{ value }}</textarea>
 				  </li>
 				  {% endfor %}

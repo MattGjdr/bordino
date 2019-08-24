@@ -213,7 +213,13 @@ def show(id):
 
     xml = "" #write_xml(results['_source'])
 
-    return render_template('edit.html', id=id, elements=results['_source'], xml=xml, disabled="disabled", img=img)
+    return render_template('edit.html', 
+        text_elements=text_elements, 
+        image_elements=image_elements, 
+        id=id, 
+        elements=results['_source'], 
+        xml=xml, disabled="disabled", 
+        img=img)
 
 """
     Function create file for downloading, it could be image or text
@@ -236,8 +242,7 @@ def download(id, type):
 
         str_images = " ".join(hashes_img)
         zip_path = os.path.join(UPLOAD_FOLDER, id+".zip")
-        print(str_images)
-        print(zip_path)
+        
         os.system("zip -j "+zip_path+" "+str_images)
         
         return send_file(zip_path, as_attachment=True)
@@ -263,4 +268,11 @@ def upload(type, id):
         update_elastic(id, parsed_xml)
   
     return redirect('/edit/'+id)
+
+"""
+    Function show about html page
+"""
+@app.route('/about', methods=["GET"])
+def about():
+    return render_template('about.html')
 

@@ -122,7 +122,9 @@ def search_elastic(query,search_type,start,size):
 
 		else:
 			#if specific search then even REASEARCH KEYS are used as AND not as OR
-			query_bool = "must"
+			#TODO how to use whather to use MUST or SHOULD
+			query_bool = "should"
+
 			for e in element_list:
 				if query.get(e):
 					#IMPORTANT "date" should be first in element_list
@@ -148,6 +150,16 @@ def search_elastic(query,search_type,start,size):
 								}
 							}
 						})
+				elif ("references" in e):
+					query_list.append({
+						"match": {
+							e: {
+								"query": query.get("references",""),
+								"fuzziness": "AUTO",
+								"operator": "and"
+							}
+						}
+					})
 
 
 	#image / text filter, which should be searched, whether one or other or both

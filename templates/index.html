@@ -13,7 +13,11 @@
 	<script type="text/javascript" src="{{ url_for('static', filename='mine.js') }}"></script>
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
 	<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
-
+	<style>
+	    img:hover {
+	      transform: scale(1.05);
+	    }
+   </style>
 </head>
 <body style="background-color: #ddd">
 
@@ -25,6 +29,7 @@
     <ul class="nav navbar-nav">
       <li class="active"><a href="/">Home</a></li>
       <li><a href="/login">Admin</a></li>
+      <li><a href="/about">About</a></li>
     </ul>
   </div>
 </nav>
@@ -134,7 +139,7 @@
 </div>
 <div class="row" style="margin-right: 15%; margin-left: 15%;">
 	<center>
-		<h5>Showing results: <span class="label label-default">{{ next-num_show_results+1 }} - {{ next }} (max.: {{ num }})</span></h5>
+		<h5>Results: <span class="label label-default">{{num_show_results}} per page (Found results: {{ num }})</span></h5>
 	</center>
 </div>
 <div class="row" style="margin-right: 15%; margin-left: 15%;">
@@ -164,7 +169,33 @@
 		  			<ul class="list-group">
 					  {% for key, value in element.highlight.items() %}
 					  <li class="list-group-item">
-					  	<span class="label label-default">{{key}}</span> 
+					  	{% if key == "keys" %}
+					  		<span class="label label-default">Research keys</span>
+					  	{% endif %}
+					  	{% if "studies" in key %}
+						  	<span class="label label-default">Studies</span>
+					  	{% endif %}
+					  	{% if "edition" in key %}
+						  	<span class="label label-default">Work reference</span>
+					  	{% endif %}
+					  	{% if "translation" in key %}
+						  	<span class="label label-default">Translation reference</span>
+					  	{% endif %}
+
+					  	{% if element._source.path %}
+					  		{% for element in image_elements %}
+					  			{% if element.id == key %}
+					  				<span class="label label-default">{{element.name}}</span>
+					  			{% endif %}
+					  		{% endfor %}
+					  	{% else %}
+					  		{% for element in text_elements %}
+					  			{% if element.id == key %}
+					  			<span class="label label-default">{{element.name}}</span>
+					  			{% endif %}
+					  		{% endfor %}
+					  	{% endif %}
+
 					  	  {% for el in value %}
 						  	{{ el|safe }} ...
 						  {% endfor %}
@@ -175,9 +206,9 @@
    						<a href="/edit/{{element._id}}" style="text-decoration: none"><span class="label label-success">Edit informations</span></a>
 						{% else %}
 					  	<a href="/show/{{element._id}}" style="text-decoration: none"><span class="label label-info">More informations</span></a>
-					  	<a href="/download/txt/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download all informations</span></a>
+					  	<a href="/download/txt/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download all informations (.xml)</span></a>
 						  	{% if element._source.path %} 
-								<a href="/download/img/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download image</span></a>
+								<a href="/download/img/{{element._id}}" style="text-decoration: none"><span class="label label-info">Download images (.zip)</span></a>
 							{% endif %}
 					  	
 					  	{% endif %}

@@ -22,58 +22,25 @@
     </div>
     <ul class="nav navbar-nav">
       <li><a href="/">Home</a></li>
-      <li class="active"><a href="/login">Admin</a></li>
-      <li><a href="/about">About</a></li>
+      <li><a href="/login">Admin</a></li>
+      <li class="active"><a href="/about">About</a></li>
     </ul>
   </div>
 </nav>
 
-{% if logged == True %}
 <div class="row" style="margin-right: 15%; margin-left: 15%; margin-bottom: 3%;">
    <div class="col-sm-12">
       <center>
-        <a href="/login?logout" style="text-decoration: none"><span class="label label-danger">Logout</span></a>
+        <p>
+          Project is about searching things in things.
+        </p> 
+        <p>
+          Contact us: mail@mail.com
+        </p> 
       </center>
-    </div>
+   </div>
 </div>
-<div class="row" style="margin-right: 15%; margin-left: 15%;">
-   <center>
-      <p>
-      For uploading use this form with files and press Upload. <br />
-      For uploading just text data, upload just text. <br />
-      For uploading image data, upload text and some images. <br />
-      </p>
-      <form method=post enctype=multipart/form-data>
-        Upload images (JPG format): <input type="file" name="jpgs[]" multiple="">
-        <br />
-        Upload text (XML format): <input type="file" name="xml" multiple="">
-        <br />
-        <input type=submit value="Upload">
-      </form>
-   </center>
-</div>
-<div class="row" style="margin-right: 15%; margin-left: 15%;">
-  {% if message %}
-  <center>
-   Message from server: {{ message }}
- </center>
- {% endif %}
-</div>
-{% else %}
-<div class="row" style="margin-right: 15%; margin-left: 15%;">
-<center>
-  <form action="/login" method="post">
-    <div class="container">
-      <label for="uname"><b>Username</b></label>
-      <input type="text" placeholder="Enter Username" name="uname" required>
-      <label for="psw"><b>Password</b></label>
-      <input type="password" placeholder="Enter Password" name="psw" required>
-      <button type="submit">Login</button>
-    </div>
-  </form>
-</center>
-</div>
-{% endif %}
+
 
 </body>
 </html>
