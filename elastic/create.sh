@@ -77,6 +77,10 @@ curl -X PUT "localhost:9200/my_index" -H 'Content-Type: application/json' -d'
               "studies": {
                 "type": "text",
                 "analyzer": "my_analyzer"
+              },             
+              "photo": {
+                "type": "text",
+                "analyzer": "my_analyzer"
               }
             }
           },

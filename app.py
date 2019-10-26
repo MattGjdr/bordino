@@ -10,7 +10,7 @@ from flask import Flask, flash, request, redirect, url_for
 from werkzeug.utils import secure_filename
 
 from es import add_elastic, delete_elastic, get_elastic, search_elastic, update_elastic
-from file import upload_file, UPLOAD_FOLDER
+from file import upload_file, UPLOAD_FOLDER, STATIC_IMAGE_FOLDER
 from utils import elastic_to_html, html_to_elastic, elastic_to_html_all_filter, check_elastic_res, append_date_to_res
 
 from format import write_xml, read_xml
@@ -18,6 +18,8 @@ from format import write_xml, read_xml
 app = Flask(__name__)
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['STATIC_IMAGE_FOLDER'] = STATIC_IMAGE_FOLDER
+
 es = Elasticsearch()
 
 #need for session
@@ -236,16 +238,23 @@ def download(id, type):
     elif (type == "img"):
         results = get_elastic(id)
         hashes_img = results['_source']['path']
+        ref_img = results['_source']['references.photo']
         #obsah suboru
         for idx, img in enumerate(hashes_img):
             hashes_img[idx] = os.path.join(UPLOAD_FOLDER, img+".jpg")
 
+        #obsah ref
+        refs = ""
+        for idx, ref in enumerate(ref_img):
+            refs += ref+"\n"
+
         str_images = " ".join(hashes_img)
         zip_path = os.path.join(UPLOAD_FOLDER, id+".zip")
+        ref_path = os.path.join(UPLOAD_FOLDER, "references_"+id+".txt")
+        os.system("echo \""+refs+"\" > "+ref_path)
+        os.system("zip -j "+zip_path+" "+str_images+" "+ref_path)
         
-        os.system("zip -j "+zip_path+" "+str_images)
-        
-        return send_file(zip_path, as_attachment=True)
+        return send_file(zip_path, as_attachment=True, cache_timeout=0)
 
 """
     Function delete info from elasticsearch based on ID
@@ -254,6 +263,15 @@ def download(id, type):
 def delete(id):
     #todo verification
     if 'username' in session:
+        results = get_elastic(id)
+        if 'path' in results['_source']:
+            hashes_img = results['_source']['path']
+            for idx, img in enumerate(hashes_img):
+                print(os.path.join(STATIC_IMAGE_FOLDER, img+".jpg"))
+                print(os.path.join(UPLOAD_FOLDER, img+".jpg"))
+                os.system("rm "+os.path.join(STATIC_IMAGE_FOLDER, img+".jpg"))
+                os.system("rm "+os.path.join(UPLOAD_FOLDER, img+".jpg"))
+
         delete_elastic(id)
     return redirect('/')
 

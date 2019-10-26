@@ -45,7 +45,10 @@
 				  	{% if key == "translation" %}
 					  	Translation reference:
 				  	{% endif %}
-				  	
+				  	{% if key == "photo" %}
+					  	Image references:
+				  	{% endif %}
+
 				  	{% if img != "" %}
 				  		{% for element in image_elements %}
 				  			{% if element.id == key %}
@@ -59,7 +62,7 @@
 				  			{% endif %}
 				  		{% endfor %}
 				  	{% endif %} 
-				  	<textarea id="{{ key }}" class="form-control" rows="2" {{ disabled }} >{{ value }}</textarea>
+				  	<textarea id="{{ key }}" class="form-control" rows="{{ value|length/120 }}">{{ value }}</textarea>
 				  </li>
 				  {% endfor %}
 			  {% else %}  

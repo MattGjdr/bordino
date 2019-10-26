@@ -11,7 +11,7 @@ import xmltodict
 xmldoc = minidom.parse('items.xml')
 
 fields_text = ["author","title","type", "chapter","date","location","latin","content","comment","references.studies","references.edition","references.translation","keys"]
-fields_img = ["title","date","location","content","comment","references.studies","references.edition","type","keys"]
+fields_img = ["title","date","location","content","comment","references.studies","references.edition","references.photo","type","keys"]
 
 """
     Function get date range from date field
@@ -48,6 +48,11 @@ def get_data(id_node, node):
 			return list(node.values())[0]
 		else:
 			return node
+	elif (id_node == "references.photo"):
+		if isinstance(node,dict):
+			return list(node.values())[0]
+		else:
+			return node
 	else:
 		return node
 
@@ -72,7 +77,7 @@ def read_xml(xml_data, type_data, hash_img=""):
 				new_item[f] = get_data(f, dict_xml['data'][f])
 			else:
 				print("Uploading file is corrupted")
-				return False, "Wrong field "+f+" inside XML file"
+				return False, "Missing field "+f+" inside XML file"
 
 	
 	except xmltodict.expat.ExpatError:

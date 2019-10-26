@@ -33,9 +33,18 @@ def elastic_to_html(res, html_type="edit"):
             res["_source"]["studies"] = '\n\n'.join(res["_source"]["references.studies"])
         else:
             res["_source"]["studies"] = res["_source"]["references.studies"]
+        #translation, just for TEXT entries
         if "references.translation" in res["_source"]:
             res["_source"]["translation"] = res["_source"]["references.translation"]
             del res["_source"]["references.translation"]
+        #photo, just for IMAGE entries
+        if "references.photo" in res["_source"]:
+            if (type(res["_source"]["references.photo"])==list):
+                res["_source"]["photo"] = '\n\n'.join(res["_source"]["references.photo"])
+            else:
+                res["_source"]["photo"] = res["_source"]["references.photo"]
+            
+            del res["_source"]["references.photo"]
         
         res["_source"]["edition"] = res["_source"]["references.edition"]
         del res["_source"]["references.edition"]
@@ -59,7 +68,7 @@ def html_to_elastic(args):
     args['references.studies'] = args['studies']
     args['references.translation'] = args['translation']
     args['references.edition'] = args['edition']
-    
+    args['references.photo'] = args['photo']
     
     return args
 
