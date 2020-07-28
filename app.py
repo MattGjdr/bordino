@@ -91,14 +91,19 @@ text_elements.append(
     }
 )
 
+# reasearch_keys = [
+#     'patronage','fabricating','restoring', 'worshiping', 'praying',
+#     'touching', 'kissing', 'burning light in front of images', 'offering precious gifts to images',
+#     'other veneration practices', 'describing', 'composing poems or inscriptions for material images', 'showing feelings',
+#     'blaming/showing scepticism/condemning', 'attacking/destryoing', 'miracles involving images'
+# ]
 
-reasearch_keys = [
-    'patronage','fabricating','restoring', 'worshiping', 'praying',
-    'touching', 'kissing', 'burning light in front of images', 'offering precious gifts to images',
-    'other veneration practices', 'describing', 'composing poems or inscriptions for material images', 'showing feelings',
-    'blaming/showing scepticism/condemning', 'attacking/destryoing', 'miracles involving images'
-]
-
+f = open('researchkeys.txt', 'r') 
+Lines = f.readlines() 
+reasearch_keys = []
+# Strips the newline character 
+for line in Lines: 
+    reasearch_keys.append(line.strip()) 
 #######################################################
 
 
@@ -180,8 +185,7 @@ def login():
 
 
     logged = False
-    if request.method == "POST":
-        if request.form['uname'] == "a" and request.form['psw'] == "a":
+    if request.method == "POST" and request.form['uname'] == "a" and request.form['psw'] == "a":
         #,request.form['psw']):
             logged = True
             session['username'] = request.form['uname']
@@ -230,31 +234,46 @@ def show(id):
 def download(id, type):
     #todo verification
     if (type == "txt"):
-        results = get_elastic(id)
-        #obsah suboru
-        xml = write_xml(results['_source'])
-        generator = xml
-        return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename="+id+".xml"})
+        return download_txt(id,type)
+
+    
     elif (type == "img"):
-        results = get_elastic(id)
-        hashes_img = results['_source']['path']
-        ref_img = results['_source']['references.photo']
-        #obsah suboru
-        for idx, img in enumerate(hashes_img):
-            hashes_img[idx] = os.path.join(UPLOAD_FOLDER, img+".jpg")
+        return download_img(id,type)
 
-        #obsah ref
-        refs = ""
-        for idx, ref in enumerate(ref_img):
-            refs += ref+"\n"
 
-        str_images = " ".join(hashes_img)
-        zip_path = os.path.join(UPLOAD_FOLDER, id+".zip")
-        ref_path = os.path.join(UPLOAD_FOLDER, "references_"+id+".txt")
-        os.system("echo \""+refs+"\" > "+ref_path)
-        os.system("zip -j "+zip_path+" "+str_images+" "+ref_path)
-        
-        return send_file(zip_path, as_attachment=True, cache_timeout=0)
+"""
+    Function create text file for downloading
+"""
+def download_txt(id,type):
+    results = get_elastic(id)
+    #obsah suboru
+    xml = write_xml(results['_source'])
+    generator = xml
+    return Response(generator, mimetype="text/plain", headers={"Content-Disposition": "attachment;filename="+id+".xml"})
+
+"""
+    Function create zip file for downloading
+"""
+def download_img(id,type):
+    results = get_elastic(id)
+    hashes_img = results['_source']['path']
+    ref_img = results['_source']['references.photo']
+    #obsah suboru
+    for idx, img in enumerate(hashes_img):
+        hashes_img[idx] = os.path.join(UPLOAD_FOLDER, img+".jpg")
+
+    #obsah ref
+    refs = ""
+    for idx, ref in enumerate(ref_img):
+        refs += ref+"\n"
+
+    str_images = " ".join(hashes_img)
+    zip_path = os.path.join(UPLOAD_FOLDER, id+".zip")
+    ref_path = os.path.join(UPLOAD_FOLDER, "references_"+id+".txt")
+    os.system("echo \""+refs+"\" > "+ref_path)
+    os.system("zip -j "+zip_path+" "+str_images+" "+ref_path)
+    
+    return send_file(zip_path, as_attachment=True, cache_timeout=0)
 
 """
     Function delete info from elasticsearch based on ID

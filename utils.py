@@ -24,33 +24,36 @@ def elastic_to_html(res, html_type="edit"):
         img_name = ""
     
     res['_source']['date'] = res['_source']['date']['gte']+"-"+res['_source']['date']['lte'] if res['_source']['date']['lte'] != res['_source']['date']['gte'] else res['_source']['date']['lte']
-    if (html_type == "show"):
-        # if ("material" in res["_source"] and type(res["_source"]["material"])==list):
-        #     res["_source"]["material"] = ', '.join(res["_source"]["material"])
-        if (type(res["_source"]["keys"])==list):
-            res["_source"]["keys"] = ', '.join(res["_source"]["keys"])
-        if (type(res["_source"]["references.studies"])==list):
-            res["_source"]["studies"] = '\n\n'.join(res["_source"]["references.studies"])
-        else:
-            res["_source"]["studies"] = res["_source"]["references.studies"]
-        #translation, just for TEXT entries
-        if "references.translation" in res["_source"]:
-            res["_source"]["translation"] = res["_source"]["references.translation"]
-            del res["_source"]["references.translation"]
-        #photo, just for IMAGE entries
-        if "references.photo" in res["_source"]:
-            if (type(res["_source"]["references.photo"])==list):
-                res["_source"]["photo"] = '\n\n'.join(res["_source"]["references.photo"])
-            else:
-                res["_source"]["photo"] = res["_source"]["references.photo"]
-            
-            del res["_source"]["references.photo"]
-        
-        res["_source"]["edition"] = res["_source"]["references.edition"]
-        del res["_source"]["references.edition"]
-        del res["_source"]["references.studies"]
 
     del res["_source"]["added"]
+
+    if (html_type != "show"):
+        return res, img_name
+    # if ("material" in res["_source"] and type(res["_source"]["material"])==list):
+    #     res["_source"]["material"] = ', '.join(res["_source"]["material"])
+    if (type(res["_source"]["keys"])==list):
+        res["_source"]["keys"] = ', '.join(res["_source"]["keys"])
+    if (type(res["_source"]["references.studies"])==list):
+        res["_source"]["studies"] = '\n\n'.join(res["_source"]["references.studies"])
+    else:
+        res["_source"]["studies"] = res["_source"]["references.studies"]
+    #translation, just for TEXT entries
+    if "references.translation" in res["_source"]:
+        res["_source"]["translation"] = res["_source"]["references.translation"]
+        del res["_source"]["references.translation"]
+    #photo, just for IMAGE entries
+    if "references.photo" in res["_source"]:
+        if (type(res["_source"]["references.photo"])==list):
+            res["_source"]["photo"] = '\n\n'.join(res["_source"]["references.photo"])
+        else:
+            res["_source"]["photo"] = res["_source"]["references.photo"]
+        
+        del res["_source"]["references.photo"]
+    
+    res["_source"]["edition"] = res["_source"]["references.edition"]
+    del res["_source"]["references.edition"]
+    del res["_source"]["references.studies"]
+
 
     return res, img_name
 

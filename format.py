@@ -29,32 +29,43 @@ def get_date(date_text):
 	print(date_dict)
 	return date_dict
 
+
+def get_node(node)
+	if isinstance(node,dict):
+		return list(node.values())[0]
+	else:
+		return node
 """
     Function parse data into needed format
 """
 def get_data(id_node, node):
 	#special fields
 	if (id_node == "keys"):
-		if isinstance(node,dict):
-			return list(node.values())[0]
-		else:
-			return node
+		return get_node(node)
 
 	elif ((id_node == "date")):
 		return get_date(node)
 
 	elif (id_node == "references.studies"):
-		if isinstance(node,dict):
-			return list(node.values())[0]
-		else:
-			return node
+		return get_node(node)
+
 	elif (id_node == "references.photo"):
-		if isinstance(node,dict):
-			return list(node.values())[0]
-		else:
-			return node
+		return get_node(node)
 	else:
 		return node
+
+"""
+    Function read fields from given xml
+"""
+def get_fields(dict_xml, fields):
+	new_item = dict()
+	for f in fields:
+		if f in dict_xml['data']:
+			new_item[f] = get_data(f, dict_xml['data'][f])
+		else:
+			raise Exception("Uploading file is corrupted: Missing field "+f+" inside XML file")
+			# return False, "Missing field "+f+" inside XML file"
+	return new_item
 
 """
     Function convert xml to dict
@@ -64,20 +75,12 @@ def read_xml(xml_data, type_data, hash_img=""):
 	try:
 		dict_xml = xmltodict.parse(xml_data)
 
-		new_item = dict()
-
 		if (type_data == "img"):
 			fields = fields_img
 		else:
 			fields = fields_text
 
-		for f in fields:
-			
-			if f in dict_xml['data']:
-				new_item[f] = get_data(f, dict_xml['data'][f])
-			else:
-				print("Uploading file is corrupted")
-				return False, "Missing field "+f+" inside XML file"
+		new_item = get_fields(dict_xml, fields)
 
 	
 	except xmltodict.expat.ExpatError:

@@ -96,6 +96,8 @@ def search_elastic(query,search_type,start,size):
 	if search_type == "all":
 		return search_all(start, size, check_date);
 
+
+	#TODO make it cleaner
 	else:
 		if search_type == "basic":
 			element_list.pop(0)
