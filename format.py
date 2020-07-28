@@ -30,7 +30,7 @@ def get_date(date_text):
 	return date_dict
 
 
-def get_node(node)
+def get_node(node):
 	if isinstance(node,dict):
 		return list(node.values())[0]
 	else:
